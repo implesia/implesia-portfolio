@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { CONTACT, PRACTICE, WORK, type WorkItem } from "@/lib/content";
 import { DepthCanvas } from "@/components/depth-canvas";
+import { HeroFigure } from "@/components/hero-figure";
 import { FaqList } from "@/components/faq-list";
 
 type SiteViewProps = {
@@ -41,11 +42,7 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
 
       <main id="top">
       <section className="hero">
-        <img
-          className="hero-figure"
-          src="/hero-figure.png"
-          alt="A figure with raised hands over a field of machines in a storm"
-        />
+        <HeroFigure />
         <div className="hero-copy">
           <p className="eyebrow line">Founder &amp; CEO · Implesia IT · Dhaka</p>
           <h1 className="line" tabIndex={-1}>

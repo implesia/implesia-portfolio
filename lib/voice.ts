@@ -58,51 +58,20 @@ export function speakFile(url: string, hooks?: SpeakHooks) {
       src.buffer = buffer;
       src.playbackRate.value = 1;
 
-      const highpass = ctx.createBiquadFilter();
-      highpass.type = "highpass";
-      highpass.frequency.value = 80;
+      const shade = ctx.createBiquadFilter();
+      shade.type = "lowpass";
+      shade.frequency.value = 1100;
 
-      const presence = ctx.createBiquadFilter();
-      presence.type = "highshelf";
-      presence.frequency.value = 3800;
-      presence.gain.value = 2.2;
+      const ghost = ctx.createDelay(0.3);
+      ghost.delayTime.value = 0.12;
 
-      const compressor = ctx.createDynamicsCompressor();
-      compressor.threshold.value = -18;
-      compressor.knee.value = 10;
-      compressor.ratio.value = 2.6;
-      compressor.attack.value = 0.006;
-      compressor.release.value = 0.2;
-
-      const dry = ctx.createGain();
-      dry.gain.value = 1;
-
-      const dark = ctx.createBiquadFilter();
-      dark.type = "lowpass";
-      dark.frequency.value = 1600;
-
-      const near = ctx.createDelay(0.5);
-      near.delayTime.value = 0.046;
-      const far = ctx.createDelay(0.5);
-      far.delayTime.value = 0.132;
-      const nearBack = ctx.createGain();
-      nearBack.gain.value = 0.28;
       const wet = ctx.createGain();
-      wet.gain.value = 0.22;
+      wet.gain.value = 0.18;
 
-      src.connect(highpass);
-      highpass.connect(presence);
-      presence.connect(compressor);
-      compressor.connect(dry);
-      dry.connect(ctx.destination);
-
-      compressor.connect(dark);
-      dark.connect(near);
-      near.connect(nearBack);
-      nearBack.connect(near);
-      near.connect(wet);
-      dark.connect(far);
-      far.connect(wet);
+      src.connect(ctx.destination);
+      src.connect(shade);
+      shade.connect(ghost);
+      ghost.connect(wet);
       wet.connect(ctx.destination);
 
       src.onended = () => {

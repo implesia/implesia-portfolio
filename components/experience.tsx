@@ -28,12 +28,12 @@ export function Experience() {
       if (id !== loopRef.current || !soundRef.current) return;
       const line = STORM_LINES[lineRef.current % STORM_LINES.length];
       lineRef.current += 1;
-      audio.current?.duck(0.18);
+      audio.current?.duck(true);
       speakFile(line, {
         onEnd: () => {
           if (id !== loopRef.current) return;
-          audio.current?.duck(0.9);
-          window.setTimeout(run, 1100);
+          audio.current?.duck(false);
+          window.setTimeout(run, 1300);
         },
       });
     };
@@ -42,13 +42,13 @@ export function Experience() {
 
   function ask(voice: string, onEnd: () => void, onInterrupt: () => void) {
     loopRef.current += 1;
-    if (soundRef.current) audio.current?.duck(0.18);
+    audio.current?.duck(true);
     speakFile(voice, {
       onInterrupt,
       onEnd: () => {
-        if (soundRef.current) audio.current?.duck(0.9);
+        audio.current?.duck(false);
         onEnd();
-        if (soundRef.current) window.setTimeout(armStorm, 1100);
+        if (soundRef.current) window.setTimeout(armStorm, 1300);
       },
     });
   }
@@ -56,8 +56,8 @@ export function Experience() {
   function hush() {
     loopRef.current += 1;
     stopVoice();
+    audio.current?.duck(false);
     if (!soundRef.current) return;
-    audio.current?.duck(0.9);
     window.setTimeout(() => {
       if (soundRef.current) armStorm();
     }, 500);
@@ -130,7 +130,6 @@ export function Experience() {
     if (!on) {
       loopRef.current += 1;
       stopVoice();
-      audio.current?.duck(0.9);
       return;
     }
     armStorm();
