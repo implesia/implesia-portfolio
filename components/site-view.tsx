@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { CONTACT, PRACTICE, WORK, type WorkItem } from "@/lib/content";
+import { DepthCanvas } from "@/components/depth-canvas";
 import { FaqList } from "@/components/faq-list";
 
 type SiteViewProps = {
@@ -54,6 +55,8 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
         </div>
       </section>
 
+        <div className="lower">
+        <DepthCanvas />
         <section className="chapter" id="letter">
           <p className="index line">01 — A letter</p>
           <h2 className="line">
@@ -74,6 +77,14 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
             </p>
             <p className="sign line">— Tushar</p>
           </div>
+        </section>
+
+        <section className="chapter stage" id="field" aria-label="A three-dimensional field drawn in the browser">
+          <p className="index line">— The field</p>
+          <h2 className="line">
+            The room has <em>depth.</em>
+          </h2>
+          <p className="chapter-note line">A structure drawn in the browser. It turns as you move.</p>
         </section>
 
         <section className="chapter" id="practice">
@@ -162,12 +173,13 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
             </a>
           </p>
         </section>
-      </main>
 
       <footer className="colophon">
         <p>Tushar Hossen · Implesia IT Ltd · Dhaka</p>
-        <p>Next.js · GSAP · Storm drawn in the browser. Sound synthesized.</p>
+        <p>Next.js · GSAP · Storm and a 3D field drawn in the browser.</p>
       </footer>
+        </div>
+      </main>
     </>
   );
 }

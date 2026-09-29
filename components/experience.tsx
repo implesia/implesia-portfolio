@@ -73,12 +73,23 @@ export function Experience() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     document.documentElement.classList.remove("gated");
 
-    if (reduced) {
-      ScrollTrigger.refresh();
-      return;
-    }
-
     const ctx = gsap.context(() => {
+      gsap.utils.toArray<HTMLElement>(".chapter").forEach((section) => {
+        ScrollTrigger.create({
+          trigger: section,
+          start: "top 55%",
+          end: "bottom 40%",
+          onToggle: (self) => {
+            section.classList.toggle("is-live", self.isActive);
+            document
+              .querySelector<HTMLAnchorElement>(`.nav a[href="#${section.id}"]`)
+              ?.classList.toggle("is-here", self.isActive);
+          },
+        });
+      });
+
+      if (reduced) return;
+
       gsap.set(".line", { autoAlpha: 0, y: 28 });
       gsap.to(".hero .line", {
         autoAlpha: 1,
@@ -108,6 +119,7 @@ export function Experience() {
       });
     });
 
+    ScrollTrigger.refresh();
     return () => ctx.revert();
   }, [entered]);
 

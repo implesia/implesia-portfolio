@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, Cormorant_Garamond, Outfit, UnifrakturMaguntia } from "next/font/google";
 import "./globals.css";
 
@@ -27,6 +27,12 @@ const display = UnifrakturMaguntia({
   weight: "400",
   variable: "--font-display",
 });
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: "Tushar Hossen — Implesia IT",
