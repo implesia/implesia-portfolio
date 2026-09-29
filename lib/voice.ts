@@ -9,6 +9,54 @@ let token = 0;
 let onInterrupt: (() => void) | null = null;
 const cache = new Map<string, Promise<AudioBuffer>>();
 
+let roomCtx: AudioContext | null = null;
+let roomInput: GainNode | null = null;
+let roomWet: GainNode | null = null;
+
+function ghostRoom(ctx: AudioContext) {
+  if (roomInput && roomWet && roomCtx === ctx) return { input: roomInput, wet: roomWet };
+  const input = ctx.createGain();
+  const dark = ctx.createBiquadFilter();
+  dark.type = "lowpass";
+  dark.frequency.value = 2200;
+  const wet = ctx.createGain();
+  wet.gain.value = 0.12;
+  input.connect(dark);
+  for (const tap of [
+    { delay: 0.011, feedback: 0.22 },
+    { delay: 0.017, feedback: 0.16 },
+    { delay: 0.023, feedback: 0.12 },
+  ]) {
+    const delay = ctx.createDelay(0.05);
+    delay.delayTime.value = tap.delay;
+    const feedback = ctx.createGain();
+    feedback.gain.value = tap.feedback;
+    dark.connect(delay);
+    delay.connect(feedback);
+    feedback.connect(delay);
+    delay.connect(wet);
+  }
+  wet.connect(ctx.destination);
+  roomCtx = ctx;
+  roomInput = input;
+  roomWet = wet;
+  return { input, wet };
+}
+
+function openRoom() {
+  if (!voiceCtx || !roomWet) return;
+  const now = voiceCtx.currentTime;
+  roomWet.gain.cancelScheduledValues(now);
+  roomWet.gain.setTargetAtTime(0.12, now, 0.04);
+}
+
+function hushRoom() {
+  if (!voiceCtx || !roomWet) return;
+  const now = voiceCtx.currentTime;
+  roomWet.gain.cancelScheduledValues(now);
+  roomWet.gain.setTargetAtTime(0, now, 0.08);
+}
+
 function context() {
   if (!voiceCtx || voiceCtx.state === "closed") voiceCtx = new AudioContext();
   return voiceCtx;
@@ -40,6 +88,7 @@ export function stopVoice() {
     }
     current = null;
   }
+  hushRoom();
   interrupt?.();
 }
 
@@ -58,21 +107,14 @@ export function speakFile(url: string, hooks?: SpeakHooks) {
       src.buffer = buffer;
       src.playbackRate.value = 1;
 
-      const shade = ctx.createBiquadFilter();
-      shade.type = "lowpass";
-      shade.frequency.value = 1100;
+      const lead = ctx.createGain();
+      lead.gain.value = 1;
+      src.connect(lead);
+      lead.connect(ctx.destination);
 
-      const ghost = ctx.createDelay(0.3);
-      ghost.delayTime.value = 0.12;
-
-      const wet = ctx.createGain();
-      wet.gain.value = 0.18;
-
-      src.connect(ctx.destination);
-      src.connect(shade);
-      shade.connect(ghost);
-      ghost.connect(wet);
-      wet.connect(ctx.destination);
+      const room = ghostRoom(ctx);
+      openRoom();
+      src.connect(room.input);
 
       src.onended = () => {
         if (mine !== token) return;

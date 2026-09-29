@@ -34,6 +34,7 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
         </a>
         <nav aria-label="Sections">
           <a href="#letter">Letter</a>
+          <a href="#practice">Services</a>
           <a href="#work">Work</a>
           <a href="#ask">Ask</a>
           <a href="#contact">Contact</a>
@@ -48,7 +49,9 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
           <h1 className="line" tabIndex={-1}>
             Built to <em>hold.</em>
           </h1>
-          <p className="lede line">Software for when the stakes are real. Not a demo that impresses for a day.</p>
+          <p className="lede line">
+            Web platforms, mobile apps, cloud, and the systems a business runs on.
+          </p>
         </div>
       </section>
 
@@ -61,16 +64,16 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
           </h2>
           <div className="letter">
             <p className="line">
-              We did not start Implesia IT to ship more software. We started it to ship software people can trust
-              when the stakes are real.
+              Implesia IT is a software company in Dhaka. We take the work an IT company is trusted with, and we ship
+              it so a team can run it.
             </p>
             <p className="line">
-              Every platform carries someone’s revenue, reputation, or operational continuity. Architecture,
-              security, and maintainability are not polish. They are the product.
+              Web platforms. Mobile applications. SaaS and cloud. Design. Commerce, automation, and AI. ERP, CRM,
+              learning, and hospital systems, when the business needs its own.
             </p>
             <p className="line">
-              From Dhaka, the studio works with teams who expect senior judgment, clear communication, and delivery
-              that still performs years after launch.
+              From Mirpur, we work with teams who want a clear scope, a system they can operate, and delivery that
+              still holds after launch.
             </p>
             <p className="sign line">— Tushar</p>
           </div>
@@ -85,10 +88,13 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
         </section>
 
         <section className="chapter" id="practice">
-          <p className="index line">02 — The practice</p>
+          <p className="index line">02 — Services</p>
           <h2 className="line">
-            One studio. <em>Serious</em> systems.
+            What an IT company <em>ships.</em>
           </h2>
+          <p className="chapter-note line">
+            The same desk also covers digital marketing, content, and video when a launch needs to be seen.
+          </p>
           <ul className="practice">
             {PRACTICE.map((item) => (
               <li className="line" key={item.index}>
@@ -108,7 +114,7 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
             Already in the <em>world.</em>
           </h2>
           <p className="chapter-note line">
-            Work from Implesia IT, the studio I founded. Names and scopes are the ones we publish.
+            Published work from Implesia IT. Each one is a service we still deliver.
           </p>
           <ol className="works">
             {WORK.map((item) => (
@@ -139,9 +145,9 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
         <section className="chapter close" id="contact">
           <p className="index line">05 — The door</p>
           <h2 className="line">
-            If it must not fail <em>quietly.</em>
+            Tell us what must <em>hold.</em>
           </h2>
-          <p className="lede tight line">I would be glad to talk.</p>
+          <p className="lede tight line">A conversation is enough to start.</p>
           <form className="note line" onSubmit={send}>
             <label>
               Name
@@ -152,7 +158,7 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
               <input name="email" type="email" required autoComplete="email" />
             </label>
             <label>
-              What is at stake
+              What you need
               <textarea name="message" rows={4} required />
             </label>
             <button type="submit" className="btn btn-solid">

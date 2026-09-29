@@ -37,7 +37,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Tushar Hossen — Implesia IT",
   description:
-    "Tushar Hossen, founder of Implesia IT in Dhaka. A cinematic portfolio. The storm is drawn and heard in the browser.",
+    "Tushar Hossen, founder of Implesia IT in Dhaka. Web platforms, mobile apps, SaaS, cloud, and the business systems a company runs on.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
