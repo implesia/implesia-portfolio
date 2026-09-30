@@ -174,8 +174,9 @@ function spin(
       ring.perspective = Math.round(width * 3.4);
       stepPx = Math.max(120, ring.reach * 0.9);
     } else {
-      const spacing = width * (window.innerWidth < 700 ? 1.05 : 1.1);
-      radius = width * 2.8;
+      const phone = window.innerWidth < 700;
+      const spacing = width * (phone ? 1.18 : 1.1);
+      radius = width * (phone ? 2.35 : 2.8);
       spread = spacing / radius / DEG;
       stepPx = spacing;
     }

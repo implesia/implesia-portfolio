@@ -106,7 +106,9 @@ export function Experience() {
         ease: "power3.out",
         delay: 0.08,
         onComplete: () => {
-          document.querySelector<HTMLElement>(".hero h1")?.focus({ preventScroll: true });
+          document
+            .querySelector<HTMLElement>(".hero h1")
+            ?.focus({ preventScroll: true });
         },
       });
       gsap.utils.toArray<HTMLElement>(".chapter").forEach((section) => {
@@ -141,20 +143,24 @@ export function Experience() {
         },
       );
 
-      gsap.fromTo(
-        ".ribbon-set",
-        { rotationX: 28 },
-        {
-          rotationX: -16,
-          ease: "none",
-          scrollTrigger: {
-            trigger: ".ribbons",
-            start: "top bottom",
-            end: "bottom top",
-            scrub: 0.6,
+      // On a phone the 3D tilt clips the tape and slides it under the hear control.
+      // Keep the ribbons flat there; the desktop pitch still scrubs with the scroll.
+      gsap.matchMedia().add("(min-width: 700px)", () => {
+        gsap.fromTo(
+          ".ribbon-set",
+          { rotationX: 28 },
+          {
+            rotationX: -16,
+            ease: "none",
+            scrollTrigger: {
+              trigger: ".ribbons",
+              start: "top bottom",
+              end: "bottom top",
+              scrub: 0.6,
+            },
           },
-        },
-      );
+        );
+      });
 
       const steps = gsap.utils.toArray<HTMLElement>(".step");
       let rail: ReturnType<typeof gsap.fromTo> | null = null;
