@@ -5,7 +5,10 @@
   "scripts": {
     "dev": "next dev --port 3010",
     "build": "next build",
-    "start": "next start --port 3010"
+    "start": "wrangler dev",
+    "preview": "next build && wrangler dev",
+    "deploy": "next build && wrangler deploy",
+    "deploy:dry": "next build && wrangler deploy --dry-run"
   },
   "dependencies": {
     "gsap": "3.15.0",
@@ -17,6 +20,7 @@
     "@types/node": "^24.5.2",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.9.2",
+    "wrangler": "^4.144.0"
   }
 }

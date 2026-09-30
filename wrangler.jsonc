@@ -1,0 +1,14 @@
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "implesia-portfolio",
+  "compatibility_date": "2026-09-30",
+  // No "main": the site is a static export, so every request is answered from assets and
+  // never runs (or bills) a Worker script. `next build` writes the files to ./out.
+  "assets": {
+    "directory": "./out",
+    "not_found_handling": "404-page",
+    "html_handling": "auto-trailing-slash",
+  },
+  "workers_dev": true,
+  "preview_urls": true,
+}

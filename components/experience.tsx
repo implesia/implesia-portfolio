@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { StormAudio } from "@/lib/audio";
 import { STORM_LINES } from "@/lib/content";
+import { startPointer } from "@/lib/pointer";
 import { setVoiceLevel, speakFile, stopVoice } from "@/lib/voice";
 import { Gate } from "@/components/gate";
 import { HearButton } from "@/components/hear-button";
@@ -58,6 +59,14 @@ export function Experience() {
     return () => audio.current?.stop();
   }, []);
 
+  useEffect(
+    () =>
+      startPointer(
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches,
+      ),
+    [],
+  );
+
   useLayoutEffect(() => {
     if (!entered) return;
     const reduced = window.matchMedia(
@@ -80,6 +89,12 @@ export function Experience() {
         });
       });
 
+      gsap.to(".nav-progress", {
+        scaleX: 1,
+        ease: "none",
+        scrollTrigger: { start: 0, end: "max", scrub: reduced ? true : 0.3 },
+      });
+
       if (reduced) return;
 
       gsap.set(".line", { autoAlpha: 0, y: 28 });
@@ -91,7 +106,7 @@ export function Experience() {
         ease: "power3.out",
         delay: 0.08,
         onComplete: () => {
-          document.querySelector<HTMLElement>(".hero h1")?.focus();
+          document.querySelector<HTMLElement>(".hero h1")?.focus({ preventScroll: true });
         },
       });
       gsap.utils.toArray<HTMLElement>(".chapter").forEach((section) => {
@@ -106,6 +121,80 @@ export function Experience() {
             trigger: section,
             start: "top 78%",
             once: true,
+          },
+        });
+      });
+
+      gsap.fromTo(
+        ".letter .w",
+        { opacity: 0.14 },
+        {
+          opacity: 1,
+          ease: "none",
+          stagger: 0.05,
+          scrollTrigger: {
+            trigger: ".letter",
+            start: "top 82%",
+            end: "bottom 58%",
+            scrub: 0.6,
+          },
+        },
+      );
+
+      gsap.fromTo(
+        ".ribbon-set",
+        { rotationX: 28 },
+        {
+          rotationX: -16,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".ribbons",
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 0.6,
+          },
+        },
+      );
+
+      const steps = gsap.utils.toArray<HTMLElement>(".step");
+      let rail: ReturnType<typeof gsap.fromTo> | null = null;
+      rail = gsap.fromTo(
+        ".steps",
+        { "--fill": 0 },
+        {
+          "--fill": 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".steps",
+            start: "top 72%",
+            end: "bottom 62%",
+            scrub: 0.5,
+          },
+          onUpdate: () => {
+            if (!rail) return;
+            const progress = rail.progress();
+            steps.forEach((step, index) => {
+              step.classList.toggle(
+                "is-lit",
+                progress >=
+                  (index / Math.max(1, steps.length - 1)) * 0.96 + 0.02,
+              );
+            });
+          },
+        },
+      );
+
+      gsap.utils.toArray<HTMLElement>("[data-count]").forEach((node) => {
+        const end = Number(node.dataset.count) || 0;
+        const tally = { value: 0 };
+        node.textContent = "0";
+        gsap.to(tally, {
+          value: end,
+          duration: 1.6,
+          ease: "power2.out",
+          scrollTrigger: { trigger: node, start: "top 90%", once: true },
+          onUpdate: () => {
+            node.textContent = String(Math.round(tally.value));
           },
         });
       });

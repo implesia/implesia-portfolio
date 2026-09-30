@@ -1,0 +1,21 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+  Content-Security-Policy: frame-ancestors 'none'
+  X-Frame-Options: DENY
+
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
+
+/voice/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/audio/*
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.webp
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800
+
+/*.png
+  Cache-Control: public, max-age=86400, stale-while-revalidate=604800

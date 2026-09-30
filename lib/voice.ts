@@ -18,6 +18,8 @@ const cache = new Map<string, Promise<AudioBuffer>>();
 let chainCtx: AudioContext | null = null;
 let voiceIn: GainNode | null = null;
 let voiceMaster: GainNode | null = null;
+let meter: AnalyserNode | null = null;
+let samples = new Float32Array(0);
 
 function voiceTarget() {
   return userLevel * PRESENCE;
@@ -34,10 +36,25 @@ function chain(ctx: AudioContext) {
   input.connect(master);
   master.connect(ctx.destination);
 
+  const tap = ctx.createAnalyser();
+  tap.fftSize = 1024;
+  input.connect(tap);
+
   chainCtx = ctx;
   voiceIn = input;
   voiceMaster = master;
+  meter = tap;
+  samples = new Float32Array(tap.fftSize);
   return { input, master };
+}
+
+/** How loud the line being spoken is right now, 0 to 1. The listener's volume does not change it. */
+export function voiceLevel() {
+  if (!meter || !current) return 0;
+  meter.getFloatTimeDomainData(samples);
+  let sum = 0;
+  for (let i = 0; i < samples.length; i += 1) sum += samples[i] * samples[i];
+  return Math.min(1, Math.sqrt(sum / samples.length) * 5);
 }
 
 function rise(master: GainNode, ctx: AudioContext, fade: number) {

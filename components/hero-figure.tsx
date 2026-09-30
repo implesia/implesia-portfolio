@@ -7,8 +7,28 @@ const WIDTH = 1280;
 const HEIGHT = 720;
 
 const HANDS = [
-  { src: "/hero-hand-left.png", x: 260, y: 46, wristX: 346, wristY: 152, sign: -1, period: 6.6, phase: 0.2, swing: 0.092 },
-  { src: "/hero-hand-right.png", x: 932, y: 30, wristX: 950, wristY: 158, sign: 1, period: 7.4, phase: 1.1, swing: 0.086 },
+  {
+    src: "/hero-hand-left.png",
+    x: 260,
+    y: 46,
+    wristX: 346,
+    wristY: 152,
+    sign: -1,
+    period: 6.6,
+    phase: 0.2,
+    swing: 0.092,
+  },
+  {
+    src: "/hero-hand-right.png",
+    x: 932,
+    y: 30,
+    wristX: 950,
+    wristY: 158,
+    sign: 1,
+    period: 7.4,
+    phase: 1.1,
+    swing: 0.086,
+  },
 ] as const;
 
 function cover(boxW: number, boxH: number) {
@@ -37,6 +57,7 @@ export function HeroFigure() {
     let alive = true;
     let plate: HTMLImageElement | null = null;
     let hands: HTMLImageElement[] = [];
+    let onscreen = true;
     const motion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     const paint = (now: number) => {
@@ -58,7 +79,9 @@ export function HeroFigure() {
       ctx.clearRect(0, 0, pxW, pxH);
       ctx.drawImage(plate, dx, dy, dw, dh);
       HANDS.forEach((hand, index) => {
-        const wave = Math.sin((seconds / hand.period) * Math.PI * 2 + hand.phase);
+        const wave = Math.sin(
+          (seconds / hand.period) * Math.PI * 2 + hand.phase,
+        );
         const angle = motion.matches ? 0 : hand.sign * wave * hand.swing;
         const wx = dx + hand.wristX * scale;
         const wy = dy + hand.wristY * scale;
@@ -66,14 +89,20 @@ export function HeroFigure() {
         ctx.translate(wx, wy);
         ctx.rotate(angle);
         ctx.translate(-wx, -wy);
-        ctx.drawImage(hands[index], dx + hand.x * scale, dy + hand.y * scale, hands[index].width * scale, hands[index].height * scale);
+        ctx.drawImage(
+          hands[index],
+          dx + hand.x * scale,
+          dy + hand.y * scale,
+          hands[index].width * scale,
+          hands[index].height * scale,
+        );
         ctx.restore();
       });
     };
 
     const loop = (now: number) => {
       paint(now);
-      if (!alive || motion.matches || document.hidden) return;
+      if (!alive || motion.matches || document.hidden || !onscreen) return;
       raf = window.requestAnimationFrame(loop);
     };
 
@@ -82,7 +111,10 @@ export function HeroFigure() {
       raf = window.requestAnimationFrame(loop);
     };
 
-    void Promise.all([loadImage(PLATE), ...HANDS.map((hand) => loadImage(hand.src))]).then(([loaded, ...loadedHands]) => {
+    void Promise.all([
+      loadImage(PLATE),
+      ...HANDS.map((hand) => loadImage(hand.src)),
+    ]).then(([loaded, ...loadedHands]) => {
       if (!alive) return;
       plate = loaded;
       hands = loadedHands;
@@ -91,6 +123,11 @@ export function HeroFigure() {
 
     const resize = new ResizeObserver(wake);
     resize.observe(canvas);
+    const watch = new IntersectionObserver(([entry]) => {
+      onscreen = entry.isIntersecting;
+      if (onscreen) wake();
+    });
+    watch.observe(canvas);
     document.addEventListener("visibilitychange", wake);
     motion.addEventListener("change", wake);
 
@@ -98,6 +135,7 @@ export function HeroFigure() {
       alive = false;
       window.cancelAnimationFrame(raf);
       resize.disconnect();
+      watch.disconnect();
       document.removeEventListener("visibilitychange", wake);
       motion.removeEventListener("change", wake);
     };
