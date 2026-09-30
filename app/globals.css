@@ -3238,6 +3238,29 @@ html.gated .colophon {
   display: grid;
   justify-items: center;
   gap: 0.45rem;
+  isolation: isolate;
+}
+.hear-stack::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: -0.35rem;
+  width: 5.6rem;
+  height: 5.6rem;
+  margin-left: -2.8rem;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(
+    circle,
+    var(--bg) 42%,
+    rgba(7, 17, 15, 0.88) 58%,
+    transparent 74%
+  );
+}
+.hear-stack > * {
+  position: relative;
+  z-index: 1;
 }
 .hear {
   width: 100%;
@@ -3465,45 +3488,30 @@ body:not(.sound-on) .hear-orb::after {
     overflow: hidden;
   }
   .ribbons {
-    height: 8.8rem;
+    --lift: 1.1rem;
+    height: 13.6rem;
     overflow: hidden;
-    /* Axis-aligned fade: the tapes may tilt, the cut must not. Clears the hear control. */
-    -webkit-mask-image: linear-gradient(
-      90deg,
-      transparent,
-      #000 0.9rem,
-      #000 calc(100% - 9rem),
-      transparent calc(100% - 6.4rem)
-    );
-    mask-image: linear-gradient(
-      90deg,
-      transparent,
-      #000 0.9rem,
-      #000 calc(100% - 9rem),
-      transparent calc(100% - 6.4rem)
-    );
   }
   .ribbon-set {
-    transform: none;
-    transform-style: flat;
+    transform: rotateX(11deg);
   }
   .ribbon {
-    left: -4%;
-    width: 108%;
-    padding: 0.68rem 0;
+    left: -20vw;
+    width: 140vw;
+    padding: 0.74rem 0;
   }
   .ribbon-a {
-    font-size: 0.68rem;
-    letter-spacing: 0.11em;
-    transform: translateY(-28%) rotate(-2.5deg);
+    font-size: 0.74rem;
+    letter-spacing: 0.15em;
+    transform: translateY(-50%) rotate(-5deg) translateZ(32px);
   }
   .ribbon-b {
-    font-size: 0.98rem;
-    transform: translateY(-78%) rotate(2deg);
+    font-size: 1.12rem;
+    transform: translateY(-50%) rotate(4deg) translateZ(-32px);
   }
   .ribbon-track span {
-    gap: 1rem;
-    padding-right: 1rem;
+    gap: 1.2rem;
+    padding-right: 1.2rem;
   }
 }
 
