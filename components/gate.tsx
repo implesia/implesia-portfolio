@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { TUSHAR } from "@/lib/content";
 
 const STATUSES: Array<[number, string]> = [
   [0, "Drawing the weather…"],
@@ -90,9 +91,15 @@ export function Gate({ onSound, onEnter }: GateProps) {
       aria-modal="true"
       aria-labelledby="gate-title"
     >
-      <p className="wordmark gate-mark" id="gate-title">
+      <a
+        className="wordmark gate-mark"
+        id="gate-title"
+        href={TUSHAR.home}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         Tushar <span>Hossen</span>
-      </p>
+      </a>
       <div className="ring-wrap">
         <svg className="ring" viewBox="0 0 200 200" aria-hidden="true">
           <circle

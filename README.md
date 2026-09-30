@@ -291,6 +291,7 @@ The form does not post to a server. Submit builds a `mailto:` link to `implesiai
 
 Copy and links live in `lib/content.ts`:
 
+- `TUSHAR`: tushar.implesia.com, linked from his name.
 - `IMPLESIA`: the implesia.com links and tagline.
 - Practice areas, each with tags.
 - Six shipped products: Gulf Franchise, Flyger Academy, Telemedicine, Arong LMS, Baby Grow, Flyger OTA.

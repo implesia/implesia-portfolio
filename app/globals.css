@@ -126,6 +126,14 @@ html.depth-on #depth {
 .wordmark span {
   color: var(--accent);
 }
+.nav a.wordmark {
+  color: var(--ink);
+}
+.nav a.wordmark::after {
+  width: 100%;
+  left: 0;
+  bottom: -0.28rem;
+}
 
 .nav {
   position: fixed;
@@ -572,6 +580,7 @@ a:focus-visible > .arrow {
   margin-top: 1.4rem;
 }
 .ps a,
+.sign a,
 .colophon a {
   color: var(--ink);
   text-decoration: none;
@@ -580,6 +589,8 @@ a:focus-visible > .arrow {
 }
 .ps a:hover,
 .ps a:focus-visible,
+.sign a:hover,
+.sign a:focus-visible,
 .colophon a:hover,
 .colophon a:focus-visible {
   color: white;
@@ -3073,6 +3084,8 @@ a:focus-visible > .arrow {
 .nav a:focus-visible,
 .eyebrow a:focus-visible,
 .ps a:focus-visible,
+.sign a:focus-visible,
+.gate-mark:focus-visible,
 .colophon a:focus-visible,
 .direct a:focus-visible,
 .go:focus-visible,
@@ -3134,6 +3147,13 @@ a:focus-visible > .arrow {
 .gate-mark {
   font-size: clamp(1.6rem, 3vw, 2.2rem);
   margin: 0 0 1.5rem;
+  color: var(--ink);
+  border-bottom: 1px solid rgba(226, 61, 50, 0.75);
+  padding-bottom: 0.12rem;
+}
+.gate-mark:hover,
+.gate-mark:focus-visible {
+  color: white;
 }
 .ring-wrap {
   position: relative;

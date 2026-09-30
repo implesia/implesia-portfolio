@@ -1,3 +1,8 @@
+/** Tushar’s own portfolio, linked from his name on this page. */
+export const TUSHAR = {
+  home: "https://tushar.implesia.com/",
+} as const;
+
 /** The studio site. Only pages that exist are linked. */
 export const IMPLESIA = {
   home: "https://implesia.com/",

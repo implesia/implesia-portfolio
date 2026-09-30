@@ -6,6 +6,7 @@ import {
   CONTACT,
   HABITS,
   IMPLESIA,
+  TUSHAR,
   PRACTICE,
   STEPS,
   STUDIO_PAGES,
@@ -33,7 +34,7 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
   return (
     <>
       <header className="nav">
-        <a className="wordmark" href="#top">
+        <a className="wordmark" href={TUSHAR.home} {...outside}>
           Tushar <span>Hossen</span>
         </a>
         <nav aria-label="Sections">
@@ -105,7 +106,12 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
               <p className="line">
                 <Ink text="From Mirpur, we work with teams who want a clear scope, a system they can operate, and delivery that still holds after launch." />
               </p>
-              <p className="sign line">— Tushar</p>
+              <p className="sign line">
+                —{" "}
+                <a href={TUSHAR.home} {...outside}>
+                  Tushar
+                </a>
+              </p>
               <p className="ps line">
                 P.S. The studio keeps its door open at{" "}
                 <a href={IMPLESIA.home} {...outside}>
@@ -363,7 +369,10 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
 
           <footer className="colophon">
             <p>
-              Tushar Hossen ·{" "}
+              <a href={TUSHAR.home} {...outside}>
+                Tushar Hossen
+              </a>{" "}
+              ·{" "}
               <a href={IMPLESIA.home} {...outside}>
                 Implesia IT Ltd
               </a>{" "}
