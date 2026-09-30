@@ -1,14 +1,15 @@
-const BED = "/audio/ghost-bed.wav?v=room";
-const OPEN = 0.8;
-const UNDER = 0.5;
+const BED = "/audio/videoplayback.webm?v=20";
+const OPEN = 0.52;
+const UNDER = 0.3;
 
 export class StormAudio {
   on = false;
   private ctx: AudioContext | null = null;
   private master: GainNode | null = null;
-  private source: AudioBufferSourceNode | null = null;
-  private ready: AudioBuffer | null = null;
-  private want = false;
+  private bed: HTMLAudioElement | null = null;
+  private level = 0.82;
+  private speaking = false;
+  private stopTimer = 0;
 
   constructor() {
     if (typeof window === "undefined") return;
@@ -18,58 +19,68 @@ export class StormAudio {
     master.gain.value = UNDER;
     this.master = master;
     master.connect(ctx.destination);
-    void fetch(BED)
-      .then((response) => {
-        if (!response.ok) throw new Error(BED);
-        return response.arrayBuffer();
-      })
-      .then((bytes) => ctx.decodeAudioData(bytes))
-      .then((buffer) => {
-        this.ready = buffer;
-        if (this.want) this.play();
-      })
-      .catch(() => {
-        this.ready = null;
-      });
+
+    const bed = new Audio(BED);
+    bed.loop = true;
+    bed.preload = "auto";
+    bed.addEventListener("ended", () => {
+      if (!this.on) return;
+      bed.currentTime = 0;
+      void bed.play();
+    });
+    ctx.createMediaElementSource(bed).connect(master);
+    this.bed = bed;
+  }
+
+  private bedGain(speaking: boolean) {
+    return (speaking ? UNDER : OPEN) * this.level;
+  }
+
+  setLevel(level: number) {
+    this.level = Math.min(1, Math.max(0, level));
+    this.duck(this.speaking);
   }
 
   start() {
     if (this.on) return;
     this.on = true;
-    this.want = true;
+    window.clearTimeout(this.stopTimer);
+    if (this.master && this.ctx) {
+      const now = this.ctx.currentTime;
+      this.master.gain.cancelScheduledValues(now);
+      this.master.gain.setValueAtTime(0, now);
+      this.master.gain.setTargetAtTime(this.bedGain(this.speaking), now, 0.6);
+    }
     void this.ctx?.resume();
-    this.play();
+    void this.bed?.play().catch(() => {
+      /* the click was blocked or this browser cannot play the file */
+    });
   }
 
   duck(speaking: boolean) {
+    this.speaking = speaking;
     if (!this.ctx || !this.master) return;
     const now = this.ctx.currentTime;
     this.master.gain.cancelScheduledValues(now);
     this.master.gain.setValueAtTime(this.master.gain.value, now);
-    this.master.gain.setTargetAtTime(speaking ? UNDER : OPEN, now, 0.45);
+    this.master.gain.setTargetAtTime(this.bedGain(speaking), now, 0.55);
   }
 
   stop() {
     this.on = false;
-    this.want = false;
-    if (this.source) {
-      try {
-        this.source.stop();
-      } catch {
-        /* already stopped */
-      }
-      this.source = null;
+    this.speaking = false;
+    if (this.master && this.ctx) {
+      const now = this.ctx.currentTime;
+      this.master.gain.cancelScheduledValues(now);
+      this.master.gain.setValueAtTime(this.master.gain.value, now);
+      this.master.gain.setTargetAtTime(0, now, 0.08);
     }
-    if (this.master && this.ctx) this.master.gain.value = UNDER;
-  }
-
-  private play() {
-    if (!this.want || !this.ctx || !this.master || !this.ready || this.source) return;
-    const src = this.ctx.createBufferSource();
-    src.buffer = this.ready;
-    src.loop = true;
-    src.connect(this.master);
-    src.start();
-    this.source = src;
+    const bed = this.bed;
+    window.clearTimeout(this.stopTimer);
+    this.stopTimer = window.setTimeout(() => {
+      if (this.on || !bed) return;
+      bed.pause();
+      bed.currentTime = 0;
+    }, 320);
   }
 }

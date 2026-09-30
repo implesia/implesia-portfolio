@@ -5,7 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { StormAudio } from "@/lib/audio";
 import { STORM_LINES } from "@/lib/content";
-import { speakFile, stopVoice } from "@/lib/voice";
+import { setVoiceLevel, speakFile, stopVoice } from "@/lib/voice";
 import { Gate } from "@/components/gate";
 import { HearButton } from "@/components/hear-button";
 import { SiteView } from "@/components/site-view";
@@ -17,27 +17,22 @@ export function Experience() {
   const audio = useRef<StormAudio | null>(null);
   const soundRef = useRef(false);
   const loopRef = useRef(0);
-  const lineRef = useRef(0);
   const [entered, setEntered] = useState(false);
   const [soundOn, setSoundOn] = useState(false);
+  const [level, setLevel] = useState(0.82);
   const [showGate, setShowGate] = useState(true);
 
   function armStorm() {
     const id = ++loopRef.current;
-    const run = () => {
-      if (id !== loopRef.current || !soundRef.current) return;
-      const line = STORM_LINES[lineRef.current % STORM_LINES.length];
-      lineRef.current += 1;
-      audio.current?.duck(true);
-      speakFile(line, {
-        onEnd: () => {
-          if (id !== loopRef.current) return;
-          audio.current?.duck(false);
-          window.setTimeout(run, 1300);
-        },
-      });
-    };
-    run();
+    if (!soundRef.current) return;
+    audio.current?.duck(true);
+    speakFile(STORM_LINES[0], {
+      fade: 0.55,
+      onEnd: () => {
+        if (id !== loopRef.current) return;
+        audio.current?.duck(false);
+      },
+    });
   }
 
   function ask(voice: string, onEnd: () => void, onInterrupt: () => void) {
@@ -48,7 +43,6 @@ export function Experience() {
       onEnd: () => {
         audio.current?.duck(false);
         onEnd();
-        if (soundRef.current) window.setTimeout(armStorm, 1300);
       },
     });
   }
@@ -57,10 +51,6 @@ export function Experience() {
     loopRef.current += 1;
     stopVoice();
     audio.current?.duck(false);
-    if (!soundRef.current) return;
-    window.setTimeout(() => {
-      if (soundRef.current) armStorm();
-    }, 500);
   }
 
   useEffect(() => {
@@ -70,7 +60,9 @@ export function Experience() {
 
   useLayoutEffect(() => {
     if (!entered) return;
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
     document.documentElement.classList.remove("gated");
 
     const ctx = gsap.context(() => {
@@ -129,7 +121,7 @@ export function Experience() {
     document.body.classList.toggle("sound-on", on);
     if (!on) {
       loopRef.current += 1;
-      stopVoice();
+      stopVoice(true);
       return;
     }
     armStorm();
@@ -148,20 +140,32 @@ export function Experience() {
     };
   }, [entered, showGate]);
 
-  function enter(withSound: boolean) {
+  function beginBed() {
     if (!audio.current) audio.current = new StormAudio();
-    setEntered(true);
-    if (!withSound) {
-      setSound(false);
-      return;
-    }
     try {
       audio.current.start();
-      setSound(true);
+      audio.current.duck(false);
+      soundRef.current = true;
+      setSoundOn(true);
+      document.body.classList.add("sound-on");
     } catch {
       audio.current.stop();
-      setSound(false);
+      soundRef.current = false;
+      setSoundOn(false);
+      document.body.classList.remove("sound-on");
     }
+  }
+
+  function enter() {
+    setEntered(true);
+    if (!soundRef.current) return;
+    armStorm();
+  }
+
+  function changeLevel(value: number) {
+    setLevel(value);
+    audio.current?.setLevel(value);
+    setVoiceLevel(value);
   }
 
   function toggleSound() {
@@ -181,9 +185,16 @@ export function Experience() {
       <StormCanvas />
       <div className="vignette" aria-hidden="true" />
       <div className="grain" aria-hidden="true" />
-      {showGate ? <Gate onEnter={enter} /> : null}
+      {showGate ? <Gate onSound={beginBed} onEnter={enter} /> : null}
       <SiteView onSpeak={ask} onSilence={hush} />
-      {entered ? <HearButton soundOn={soundOn} onToggle={toggleSound} /> : null}
+      {entered ? (
+        <HearButton
+          soundOn={soundOn}
+          level={level}
+          onToggle={toggleSound}
+          onLevel={changeLevel}
+        />
+      ) : null}
     </>
   );
 }

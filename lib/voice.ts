@@ -1,60 +1,50 @@
 type SpeakHooks = {
   onEnd?: () => void;
   onInterrupt?: () => void;
+  /** Seconds for the line to rise in. The first line of a cycle uses a longer rise. */
+  fade?: number;
 };
+
+const PRESENCE = 0.56;
 
 let voiceCtx: AudioContext | null = null;
 let current: AudioBufferSourceNode | null = null;
+let fading: AudioBufferSourceNode | null = null;
 let token = 0;
 let onInterrupt: (() => void) | null = null;
+let userLevel = 0.82;
 const cache = new Map<string, Promise<AudioBuffer>>();
 
-let roomCtx: AudioContext | null = null;
-let roomInput: GainNode | null = null;
-let roomWet: GainNode | null = null;
+let chainCtx: AudioContext | null = null;
+let voiceIn: GainNode | null = null;
+let voiceMaster: GainNode | null = null;
 
-function ghostRoom(ctx: AudioContext) {
-  if (roomInput && roomWet && roomCtx === ctx) return { input: roomInput, wet: roomWet };
-  const input = ctx.createGain();
-  const dark = ctx.createBiquadFilter();
-  dark.type = "lowpass";
-  dark.frequency.value = 2200;
-  const wet = ctx.createGain();
-  wet.gain.value = 0.12;
-  input.connect(dark);
-  for (const tap of [
-    { delay: 0.011, feedback: 0.22 },
-    { delay: 0.017, feedback: 0.16 },
-    { delay: 0.023, feedback: 0.12 },
-  ]) {
-    const delay = ctx.createDelay(0.05);
-    delay.delayTime.value = tap.delay;
-    const feedback = ctx.createGain();
-    feedback.gain.value = tap.feedback;
-    dark.connect(delay);
-    delay.connect(feedback);
-    feedback.connect(delay);
-    delay.connect(wet);
+function voiceTarget() {
+  return userLevel * PRESENCE;
+}
+
+function chain(ctx: AudioContext) {
+  if (voiceIn && voiceMaster && chainCtx === ctx) {
+    return { input: voiceIn, master: voiceMaster };
   }
-  wet.connect(ctx.destination);
-  roomCtx = ctx;
-  roomInput = input;
-  roomWet = wet;
-  return { input, wet };
+
+  const input = ctx.createGain();
+  const master = ctx.createGain();
+  master.gain.value = 0;
+  input.connect(master);
+  master.connect(ctx.destination);
+
+  chainCtx = ctx;
+  voiceIn = input;
+  voiceMaster = master;
+  return { input, master };
 }
 
-function openRoom() {
-  if (!voiceCtx || !roomWet) return;
-  const now = voiceCtx.currentTime;
-  roomWet.gain.cancelScheduledValues(now);
-  roomWet.gain.setTargetAtTime(0.12, now, 0.04);
-}
-
-function hushRoom() {
-  if (!voiceCtx || !roomWet) return;
-  const now = voiceCtx.currentTime;
-  roomWet.gain.cancelScheduledValues(now);
-  roomWet.gain.setTargetAtTime(0, now, 0.08);
+function rise(master: GainNode, ctx: AudioContext, fade: number) {
+  const now = ctx.currentTime;
+  master.gain.cancelScheduledValues(now);
+  master.gain.setValueAtTime(0, now);
+  master.gain.setTargetAtTime(voiceTarget(), now, Math.max(0.08, fade / 3));
 }
 
 function context() {
@@ -70,25 +60,59 @@ function load(url: string, ctx: AudioContext) {
       if (!response.ok) throw new Error(url);
       return response.arrayBuffer();
     })
-    .then((bytes) => ctx.decodeAudioData(bytes));
+    .then((bytes) => ctx.decodeAudioData(bytes.slice(0)));
   cache.set(url, pending);
   return pending;
 }
 
-export function stopVoice() {
+export function setVoiceLevel(level: number) {
+  userLevel = Math.min(1, Math.max(0, level));
+  if (!voiceCtx || !voiceMaster) return;
+  const now = voiceCtx.currentTime;
+  voiceMaster.gain.cancelScheduledValues(now);
+  voiceMaster.gain.setValueAtTime(voiceMaster.gain.value, now);
+  voiceMaster.gain.setTargetAtTime(voiceTarget(), now, 0.08);
+}
+
+export function stopVoice(fade = false) {
   token += 1;
   const interrupt = onInterrupt;
   onInterrupt = null;
-  if (current) {
+  if (fading) {
     try {
-      current.onended = null;
-      current.stop();
+      fading.stop();
     } catch {
       /* already stopped */
     }
-    current = null;
+    fading = null;
   }
-  hushRoom();
+  const src = current;
+  current = null;
+  if (src) {
+    src.onended = null;
+    if (fade && voiceCtx && voiceMaster) {
+      const now = voiceCtx.currentTime;
+      voiceMaster.gain.cancelScheduledValues(now);
+      voiceMaster.gain.setValueAtTime(voiceMaster.gain.value, now);
+      voiceMaster.gain.setTargetAtTime(0, now, 0.06);
+      fading = src;
+      window.setTimeout(() => {
+        if (fading !== src) return;
+        try {
+          src.stop();
+        } catch {
+          /* already stopped */
+        }
+        fading = null;
+      }, 220);
+    } else {
+      try {
+        src.stop();
+      } catch {
+        /* already stopped */
+      }
+    }
+  }
   interrupt?.();
 }
 
@@ -107,14 +131,9 @@ export function speakFile(url: string, hooks?: SpeakHooks) {
       src.buffer = buffer;
       src.playbackRate.value = 1;
 
-      const lead = ctx.createGain();
-      lead.gain.value = 1;
-      src.connect(lead);
-      lead.connect(ctx.destination);
-
-      const room = ghostRoom(ctx);
-      openRoom();
-      src.connect(room.input);
+      const { input, master } = chain(ctx);
+      src.connect(input);
+      rise(master, ctx, hooks?.fade ?? 0.45);
 
       src.onended = () => {
         if (mine !== token) return;

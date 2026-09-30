@@ -114,39 +114,29 @@ export const QUESTIONS = [
   {
     q: "Who do you work with?",
     a: "Companies that need software they can run. Startups and established teams, in Dhaka and beyond.",
-    voice: "/voice/faq-01.wav?v=services",
+    voice: "/voice/faq-01.wav?v=deep",
   },
   {
     q: "What do you actually deliver?",
     a: "The services of an IT company. Web platforms, mobile apps, SaaS and cloud, design, commerce, automation, and AI. ERP, CRM, learning systems, and hospital software. Custom work when the brief is specific.",
-    voice: "/voice/faq-02.wav?v=services",
+    voice: "/voice/faq-02.wav?v=deep",
   },
   {
     q: "Where are you based?",
     a: "Dhaka, Bangladesh. Mirpur 10. The work is not limited to one market.",
-    voice: "/voice/faq-03.wav?v=services",
+    voice: "/voice/faq-03.wav?v=deep",
   },
   {
     q: "How does a project start?",
     a: "Discovery first: the users, the scope, and what must not fail. Then architecture, a build you can see, and a handover your team can operate.",
-    voice: "/voice/faq-04.wav?v=services",
+    voice: "/voice/faq-04.wav?v=deep",
   },
   {
     q: "Is this only websites?",
     a: "No. A website is often the front door. We also ship mobile apps, cloud platforms, and the systems the business runs on.",
-    voice: "/voice/faq-05.wav?v=services",
+    voice: "/voice/faq-05.wav?v=deep",
   },
 ] as const;
 
-export const STORM_LINES = [
-  "/voice/line-01.wav?v=shade",
-  "/voice/line-02.wav?v=shade",
-  "/voice/line-03.wav?v=shade",
-  "/voice/line-04.wav?v=shade",
-  "/voice/line-05.wav?v=shade",
-  "/voice/line-06.wav?v=shade",
-  "/voice/line-07.wav?v=shade",
-  "/voice/line-08.wav?v=shade",
-  "/voice/line-09.wav?v=shade",
-  "/voice/line-10.wav?v=shade",
-] as const;
+/** One performance. Replace this file with a studio recording of the same words. */
+export const STORM_LINES = ["/audio/narration/story.wav?v=deep"] as const;
