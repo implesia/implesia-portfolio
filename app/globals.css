@@ -220,7 +220,9 @@ html.depth-on #depth {
   border-color: var(--accent);
   color: white;
 }
-.nav-dot {
+.nav-dot,
+.studio-dot,
+.contact-dot {
   width: 0.4rem;
   height: 0.4rem;
   border-radius: 50%;
@@ -1450,91 +1452,281 @@ a:focus-visible > .arrow {
   color: var(--faint);
 }
 
+/*
+ * The studio panel signs the page off. The wordmark is the section's heading, and its letters are
+ * .line elements, so they rise with the rest of the scroll reveal. The bright copy of the grid
+ * follows the --mx/--my that the .spot spotlight writes on the panel.
+ */
 .studio {
   padding-top: clamp(3rem, 8vh, 6rem);
 }
-.studio-wrap {
-  width: min(100%, 70rem);
+.studio-panel {
+  width: min(100%, 72rem);
   margin: 1.4rem auto 0;
-  perspective: 1200px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  background:
+    radial-gradient(
+        55% 50% at 50% 50%,
+        rgba(226, 61, 50, 0.12),
+        transparent 72%
+      )
+      padding-box,
+    linear-gradient(180deg, rgba(13, 27, 24, 0.95), rgba(5, 12, 11, 0.93))
+      padding-box,
+    linear-gradient(
+        180deg,
+        rgba(243, 238, 230, 0.28),
+        rgba(243, 238, 230, 0.08) 40%,
+        rgba(226, 61, 50, 0.45)
+      )
+      border-box;
+  box-shadow: 0 2.4rem 5rem rgba(0, 0, 0, 0.5);
 }
-.studio-card {
+.studio-grid,
+.studio-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    linear-gradient(to right, var(--grid) 1px, transparent 1px) center / 2.75rem
+      2.75rem,
+    linear-gradient(to bottom, var(--grid) 1px, transparent 1px) center /
+      2.75rem 2.75rem;
+}
+.studio-grid {
+  --grid: rgba(243, 238, 230, 0.055);
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 75% at 50% 50%,
+    #000 15%,
+    transparent 78%
+  );
+  mask-image: radial-gradient(
+    ellipse 70% 75% at 50% 50%,
+    #000 15%,
+    transparent 78%
+  );
+}
+.studio-panel::after {
+  --grid: rgba(255, 138, 115, 0.32);
+  -webkit-mask-image: radial-gradient(
+    11rem circle at var(--mx, 50%) var(--my, 0%),
+    #000,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    11rem circle at var(--mx, 50%) var(--my, 0%),
+    #000,
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .studio-panel:hover::after {
+    opacity: 1;
+  }
+}
+.studio-bar,
+.contact-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem 1.2rem;
+  margin: 0;
+  padding: 0.95rem clamp(1.1rem, 2.4vw, 1.6rem);
+  border-bottom: 1px solid var(--line);
+  background: rgba(243, 238, 230, 0.025);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--faint);
+}
+.studio-name,
+.contact-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--ink);
+}
+.studio-time {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.studio-colon {
+  animation: colon 2s ease-in-out infinite;
+}
+@keyframes colon {
+  50% {
+    opacity: 0.25;
+  }
+}
+.studio-center {
   position: relative;
   display: grid;
   justify-items: center;
-  gap: 1rem;
-  padding: clamp(2.6rem, 8vw, 5.5rem) clamp(1.2rem, 4vw, 3rem);
-  border: 1px solid rgba(243, 238, 230, 0.14);
-  border-radius: 1.6rem;
-  color: var(--ink);
-  text-decoration: none;
-  transform-style: preserve-3d;
-  background:
-    radial-gradient(
-      80% 120% at 50% 115%,
-      rgba(226, 61, 50, 0.3),
-      transparent 60%
-    ),
-    linear-gradient(180deg, rgba(14, 27, 24, 0.93), rgba(5, 11, 10, 0.96));
-  box-shadow: 0 2.4rem 5rem rgba(0, 0, 0, 0.55);
-  transition: border-color 0.4s ease;
+  container-type: inline-size;
+  padding: clamp(3rem, 7vw, 5.2rem) clamp(1.2rem, 4vw, 3rem)
+    clamp(2.6rem, 6vw, 4.4rem);
 }
-.studio-card:hover,
-.studio-card:focus-visible {
-  border-color: rgba(226, 61, 50, 0.6);
-}
-.studio-glare {
+.studio-center::before {
+  --tick: rgba(243, 238, 230, 0.3);
+  content: "";
   position: absolute;
-  inset: 0;
-  border-radius: inherit;
+  inset: clamp(0.8rem, 1.8vw, 1.2rem);
   pointer-events: none;
-  background: radial-gradient(
-    30rem circle at var(--gx, 50%) var(--gy, 0%),
-    rgba(255, 196, 180, 0.13),
-    transparent 60%
-  );
+  background:
+    linear-gradient(var(--tick), var(--tick)) left top / 0.9rem 1px,
+    linear-gradient(var(--tick), var(--tick)) left top / 1px 0.9rem,
+    linear-gradient(var(--tick), var(--tick)) right top / 0.9rem 1px,
+    linear-gradient(var(--tick), var(--tick)) right top / 1px 0.9rem,
+    linear-gradient(var(--tick), var(--tick)) left bottom / 0.9rem 1px,
+    linear-gradient(var(--tick), var(--tick)) left bottom / 1px 0.9rem,
+    linear-gradient(var(--tick), var(--tick)) right bottom / 0.9rem 1px,
+    linear-gradient(var(--tick), var(--tick)) right bottom / 1px 0.9rem;
+  background-repeat: no-repeat;
 }
-.studio-kicker {
-  font-size: 0.72rem;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: #ffb0a6;
-  transform: translateZ(30px);
-}
-.studio-word {
+.studio .studio-word {
+  width: auto;
+  margin: 0 -0.12em 0 0;
   font-family: var(--mark);
   font-weight: 700;
-  font-size: clamp(2.4rem, 10.5vw, 9.5rem);
-  line-height: 0.95;
-  letter-spacing: 0.1em;
-  margin-right: -0.1em;
-  background: linear-gradient(180deg, #ffffff 0%, #f3eee6 45%, #e23d32 125%);
+  font-size: clamp(2.5rem, 15cqi, 8.8rem);
+  line-height: 1;
+  letter-spacing: 0.12em;
+}
+.studio-word .line {
+  display: inline-block;
+  background: linear-gradient(180deg, #ffffff 0%, #f3eee6 50%, #e23d32 130%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  transform: translateZ(70px);
+}
+.studio-rail {
+  position: relative;
+  width: min(24rem, 70%);
+  height: 1px;
+  margin: clamp(1.1rem, 2.4vw, 1.6rem) 0 clamp(1.2rem, 2.6vw, 1.7rem);
+  background: linear-gradient(
+      90deg,
+      transparent,
+      var(--accent) 30%,
+      #ff8a73 50%,
+      var(--accent) 70%,
+      transparent
+    )
+    center / 0% 100% no-repeat;
+  filter: drop-shadow(0 0 4px rgba(226, 61, 50, 0.8));
+  transition: background-size 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s;
+}
+.studio.is-live .studio-rail {
+  background-size: 100% 100%;
+}
+.studio-rail::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: #ff8a73;
+  box-shadow:
+    0 0 0 0.22rem rgba(226, 61, 50, 0.18),
+    0 0 0.9rem rgba(255, 138, 115, 0.9);
+  transform: translate(-50%, -50%);
 }
 .studio-line {
-  max-width: 40rem;
+  max-width: 36rem;
+  margin: 0;
   font-family: var(--serif);
   font-style: italic;
-  font-size: clamp(1.15rem, 2.4vw, 1.8rem);
-  transform: translateZ(45px);
+  font-size: clamp(1.15rem, 2.2vw, 1.7rem);
+  line-height: 1.3;
+  text-wrap: balance;
 }
-.studio-url {
-  display: inline-flex;
+.studio-cta {
+  margin-top: clamp(1.5rem, 3.4vw, 2.2rem);
+}
+.studio-pages {
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--line);
+}
+.studio-pages li + li {
+  border-top: 1px solid var(--line);
+}
+.studio-page {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas:
+    "no title go"
+    "no note go";
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.4rem;
-  padding: 0.8rem 1.25rem;
-  border-radius: 999px;
-  background: linear-gradient(#f05a45, var(--accent));
-  color: white;
-  font-size: 0.78rem;
+  gap: 0.2rem 1rem;
+  height: 100%;
+  padding: 1.3rem clamp(1.1rem, 2.4vw, 1.6rem);
+  color: var(--ink);
+  text-align: left;
+  text-decoration: none;
+  transition: background 0.3s ease;
+}
+.studio-page-no {
+  grid-area: no;
+  align-self: start;
+  padding-top: 0.45rem;
+  font-size: 0.68rem;
   letter-spacing: 0.16em;
-  text-transform: uppercase;
-  box-shadow: 0 0 24px rgba(226, 61, 50, 0.45);
-  transform: translateZ(55px);
+  color: #ffb0a6;
+}
+.studio-page-title {
+  grid-area: title;
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 600;
+  font-size: clamp(1.35rem, 2vw, 1.6rem);
+  line-height: 1.1;
+}
+.studio-page-note {
+  grid-area: note;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+.studio-go {
+  grid-area: go;
+  display: grid;
+  place-items: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+.studio-page:hover,
+.studio-page:focus-visible {
+  background: rgba(226, 61, 50, 0.07);
+}
+.studio-page:hover .studio-go,
+.studio-page:focus-visible .studio-go {
+  border-color: transparent;
+  background: linear-gradient(#f05a45, var(--accent));
+  box-shadow: 0 0 18px rgba(226, 61, 50, 0.45);
+  color: white;
+}
+.studio-page:hover .arrow,
+.studio-page:focus-visible .arrow {
+  transform: translate(2px, -2px);
 }
 
 /*
@@ -2207,36 +2399,621 @@ a:focus-visible > .arrow {
   }
 }
 
-.note {
-  display: grid;
-  gap: 0.85rem;
-  width: 100%;
-  justify-items: center;
+/* The door: the note on the left, the studio's door beside it. ContactDoor sets --angle from how much
+   of the note is written; the light reads it through --glow and --open. The door is built from flat
+   faces, so nothing that flattens 3D (opacity, filter, overflow, clip-path) goes on the rig or the
+   leaf, only on single faces. */
+@property --angle {
+  syntax: "<angle>";
+  inherits: true;
+  initial-value: 7deg;
 }
-.note label {
+.contact-grid {
   display: grid;
-  gap: 0.35rem;
-  width: 100%;
-  font-size: 0.75rem;
-  letter-spacing: 0.14em;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 2rem) clamp(2rem, 4vw, 3.5rem);
+  width: min(100%, 72rem);
+  margin: 0 auto;
+  text-align: left;
+}
+.contact-card {
+  position: relative;
+  z-index: 1;
+  justify-self: center;
+  width: min(100%, 40rem);
+  overflow: hidden;
+  container-type: inline-size;
+  border: 1px solid var(--line);
+  border-radius: 1rem;
+  background: linear-gradient(
+    180deg,
+    rgba(13, 27, 24, 0.95),
+    rgba(5, 12, 11, 0.92)
+  );
+  box-shadow:
+    0 1.6rem 4rem rgba(0, 0, 0, 0.45),
+    inset 0 1px 0 rgba(243, 238, 230, 0.05);
+}
+.contact-bar {
+  flex-wrap: wrap;
+}
+.contact-to {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  text-transform: none;
+  letter-spacing: 0.04em;
+}
+.contact-fields {
+  display: grid;
+  gap: 1.05rem 0.9rem;
+  padding: clamp(1.2rem, 4cqi, 1.7rem) clamp(1.1rem, 4cqi, 1.6rem) 0;
+}
+@container (min-width: 28rem) {
+  .contact-fields {
+    grid-template-columns: 1fr 1fr;
+  }
+  .field-wide {
+    grid-column: 1 / -1;
+  }
+}
+.field {
+  display: grid;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.field-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--faint);
+  transition: color 0.25s ease;
+}
+.field:focus-within .field-label {
+  color: #ffb0a6;
+}
+.field input,
+.field textarea {
+  width: 100%;
+  min-width: 0;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--line);
+  border-radius: 0.6rem;
+  outline: none;
+  background-color: rgba(0, 0, 0, 0.3);
+  font-size: 1rem;
+  line-height: 1.5;
+  transition:
+    border-color 0.25s ease,
+    background-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+.field textarea {
+  display: block;
+  min-height: 8.5rem;
+  resize: vertical;
+}
+.field input:hover,
+.field textarea:hover {
+  border-color: rgba(243, 238, 230, 0.28);
+}
+.field input:focus,
+.field textarea:focus {
+  border-color: var(--accent);
+  background-color: rgba(0, 0, 0, 0.42);
+  box-shadow: 0 0 0 3px rgba(226, 61, 50, 0.18);
+}
+.field input:-webkit-autofill {
+  -webkit-text-fill-color: var(--ink);
+  caret-color: var(--ink);
+  box-shadow: inset 0 0 0 100vmax #0c1714;
+}
+.field input:-webkit-autofill:focus {
+  box-shadow:
+    inset 0 0 0 100vmax #0c1714,
+    0 0 0 3px rgba(226, 61, 50, 0.18);
+}
+.contact-send {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.8rem 1.2rem;
+  padding: 1.3rem clamp(1.1rem, 4cqi, 1.6rem) clamp(1.3rem, 4cqi, 1.7rem);
+}
+.contact-send .form-hint {
+  flex: 1 1 13rem;
+  margin: 0;
+}
+
+.door {
+  --W: 10.5rem;
+  --H: 19rem;
+  --C: 1.05rem;
+  --D: 2.4rem;
+  --T: 0.7rem;
+  --size: 0.7;
+  --glow: calc(0.3 + 0.7 * sin(var(--angle)));
+  --open: sin(var(--angle));
+  --edge: rgba(255, 110, 88, calc(0.5 * var(--glow)));
+  position: relative;
+  display: grid;
+  justify-items: center;
+  transition: --angle 1.3s cubic-bezier(0.3, 1.15, 0.45, 1);
+}
+.door-scene {
+  position: relative;
+  width: 100%;
+  height: 21.5rem;
+  perspective: 1000px;
+  perspective-origin: 50% 30%;
+}
+.door-rig {
+  position: absolute;
+  left: 50%;
+  top: 45%;
+  transform-style: preserve-3d;
+  transform: rotateX(calc(-14deg - var(--py, 0) * 4deg))
+    rotateY(calc(-32deg + var(--px, 0) * 7deg))
+    scale3d(var(--size), var(--size), var(--size));
+  transition: transform 1.1s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+/* Every face is centred on its own point: --w and --h size it, the transform places it. */
+.door-rig > * {
+  position: absolute;
+  left: calc(var(--w) / -2);
+  top: calc(var(--h) / -2);
+  width: var(--w);
+  height: var(--h);
+}
+.door-part,
+.door-leaf > span {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.door-floor {
+  --w: 40rem;
+  --h: 32rem;
+  transform: translate3d(0, calc(var(--H) / 2), 4rem) rotateX(90deg);
+}
+.door-grid,
+.door-shadow {
+  position: absolute;
+}
+.door-grid {
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(243, 238, 230, 0.1) 1px, transparent 1px) 0 0 /
+      2rem 2rem,
+    linear-gradient(rgba(243, 238, 230, 0.1) 1px, transparent 1px) 0 0 / 2rem
+      2rem;
+  -webkit-mask-image: radial-gradient(
+    ellipse 46% 50% at 50% calc(50% - 4rem),
+    #000 18%,
+    transparent 72%
+  );
+  mask-image: radial-gradient(
+    ellipse 46% 50% at 50% calc(50% - 4rem),
+    #000 18%,
+    transparent 72%
+  );
+}
+.door-shadow {
+  left: 50%;
+  top: calc(50% - 4rem);
+  width: calc(var(--W) + var(--C) * 2 + 5rem);
+  height: calc(var(--D) + 4rem);
+  translate: -50% -50%;
+  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.75), transparent);
+}
+/* The light on the floor starts at the threshold and stops where the open leaf casts its shadow. */
+.door-spill {
+  --w: 30rem;
+  --h: 16rem;
+  transform: translate3d(
+      0,
+      calc(var(--H) / 2 - 2px),
+      calc(var(--D) / 2 + 8rem)
+    )
+    rotateX(90deg);
+  filter: blur(6px);
+}
+.door-spill i {
+  --from: calc(
+    50% - var(--W) / 2 + var(--W) * max(0, cos(var(--angle)))
+  );
+  position: absolute;
+  inset: 0;
+  clip-path: polygon(
+    var(--from) 0,
+    calc(50% + var(--W) / 2) 0,
+    calc(50% + var(--W) / 2 + 22%) 100%,
+    calc(var(--from) - 10%) 100%
+  );
+  background: linear-gradient(
+    rgba(255, 170, 140, calc(0.7 * var(--open))),
+    rgba(226, 61, 50, calc(0.32 * var(--open))) 45%,
+    transparent
+  );
+}
+.door-halo {
+  --w: calc(var(--W) * 2.8);
+  --h: calc(var(--H) * 1.45);
+  --halo: calc(0.55 + 0.45 * var(--open));
+  transform: translateZ(calc(var(--D) / -2 - 3px));
+  background: radial-gradient(
+    closest-side,
+    rgba(226, 61, 50, calc(0.6 * var(--halo))),
+    rgba(226, 61, 50, calc(0.2 * var(--halo))) 55%,
+    transparent
+  );
+  filter: blur(6px);
+}
+/* What waits behind the door: a warm light at the back of the frame. */
+.door-light {
+  --w: var(--W);
+  --h: var(--H);
+  transform: translateZ(calc(var(--D) / -2));
+  background: #0b0605;
+}
+.door-light::before,
+.door-light::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.door-light::before {
+  opacity: var(--glow);
+  background: radial-gradient(
+    95% 75% at 50% 56%,
+    #fff4ea,
+    #ffcdb4 12%,
+    #ff9a80 30%,
+    #ec4a3a 55%,
+    #9c1f15 80%,
+    #3a0a07
+  );
+}
+.door-light::after {
+  opacity: 0.2;
+  background: radial-gradient(
+    40% 30% at 50% 56%,
+    rgba(255, 255, 255, 0.9),
+    transparent
+  );
+  animation: door-breathe 4.8s ease-in-out infinite;
+}
+@keyframes door-breathe {
+  50% {
+    opacity: 0.45;
+  }
+}
+.door-post {
+  --w: var(--C);
+  --h: calc(var(--H) + var(--C));
+  background: linear-gradient(180deg, #283633, #141d1b 65%, #0e1514);
+}
+.door-post-l {
+  transform: translate3d(
+    calc(var(--W) / -2 - var(--C) / 2),
+    calc(var(--C) / -2),
+    calc(var(--D) / 2)
+  );
+  box-shadow: inset -2px 0 4px -1px var(--edge);
+}
+.door-post-r {
+  transform: translate3d(
+    calc(var(--W) / 2 + var(--C) / 2),
+    calc(var(--C) / -2),
+    calc(var(--D) / 2)
+  );
+  box-shadow: inset 2px 0 4px -1px var(--edge);
+}
+.door-head {
+  --w: var(--W);
+  --h: var(--C);
+  transform: translate3d(
+    0,
+    calc(var(--H) / -2 - var(--C) / 2),
+    calc(var(--D) / 2)
+  );
+  background: linear-gradient(180deg, #2d3b38, #19231f);
+  box-shadow: inset 0 -2px 4px -1px var(--edge);
+}
+/* The camera stands to the front right and a little above, so only these sides of the frame show. */
+.door-side {
+  --w: var(--D);
+  --h: calc(var(--H) + var(--C));
+  transform: translate3d(calc(var(--W) / 2 + var(--C)), calc(var(--C) / -2), 0)
+    rotateY(90deg);
+  background: linear-gradient(180deg, #16201e, #0b1110);
+}
+.door-top {
+  --w: calc(var(--W) + var(--C) * 2);
+  --h: var(--D);
+  transform: translate3d(0, calc(var(--H) / -2 - var(--C)), 0) rotateX(90deg);
+  background: linear-gradient(180deg, #1c2725, #36463f);
+}
+.door-reveal {
+  --w: var(--D);
+  --h: var(--H);
+  transform: translate3d(calc(var(--W) / -2), 0, 0) rotateY(90deg);
+  background:
+    linear-gradient(
+      90deg,
+      transparent,
+      rgba(236, 74, 58, calc(0.9 * var(--glow)))
+    ),
+    #140d0c;
+}
+.door-sill {
+  --w: calc(var(--W) + var(--C) * 2 + 0.8rem);
+  --h: calc(var(--D) + 0.8rem);
+  transform: translate3d(0, calc(var(--H) / 2 - 0.3rem), 0) rotateX(90deg);
+  background:
+    linear-gradient(
+      rgba(236, 74, 58, calc(0.35 * var(--glow))),
+      transparent 75%
+    ),
+    linear-gradient(#1e2927, #2e3c38);
+}
+.door-riser {
+  --w: calc(var(--W) + var(--C) * 2 + 0.8rem);
+  --h: 0.3rem;
+  transform: translate3d(
+    0,
+    calc(var(--H) / 2 - 0.15rem),
+    calc(var(--D) / 2 + 0.4rem)
+  );
+  background: #0c1311;
+}
+/* Light leaking round the edges of the opening. */
+.door-rim {
+  --w: var(--W);
+  --h: calc(var(--H) - 0.3rem);
+  top: calc(var(--H) / -2);
+  transform: translateZ(calc(var(--D) / 2 + 1px));
+  border: 1px solid rgba(255, 160, 135, calc(0.2 + 0.5 * var(--glow)));
+  box-shadow:
+    0 0 1.2rem rgba(226, 61, 50, calc(0.55 * var(--glow))),
+    inset 0 0 0.8rem rgba(255, 138, 115, calc(0.5 * var(--glow)));
+}
+
+/* The leaf hangs on its left edge and swings out toward the note. */
+.door-leaf {
+  --w: var(--W);
+  --h: calc(var(--H) - 0.3rem);
+  top: calc(var(--H) / -2);
+  transform-origin: 0 50%;
+  transform: translateZ(calc(var(--D) / 2)) rotateY(calc(var(--angle) * -1));
+  transform-style: preserve-3d;
+}
+.door-leaf > span {
+  position: absolute;
+}
+.door-leaf-front {
+  inset: 0;
+  background:
+    linear-gradient(270deg, rgba(255, 120, 95, calc(0.3 * var(--glow))), transparent 20%),
+    linear-gradient(115deg, rgba(243, 238, 230, 0.08), transparent 40%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 1.3rem,
+      rgba(0, 0, 0, 0.35) 1.3rem calc(1.3rem + 1px),
+      rgba(243, 238, 230, 0.04) calc(1.3rem + 1px) calc(1.3rem + 2px)
+    ),
+    linear-gradient(100deg, #1e2a27, #111a18 55%, #0c1312);
+  box-shadow: inset 0 0 0 1px rgba(243, 238, 230, 0.07);
+}
+/* The inside of the leaf faces the light, brightest by the hinge. */
+.door-leaf-back {
+  inset: 0;
+  transform: translateZ(calc(var(--T) * -1)) rotateY(180deg);
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, 0.45), transparent 45%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0 1.3rem,
+      rgba(0, 0, 0, 0.3) 1.3rem calc(1.3rem + 1px),
+      rgba(255, 190, 170, 0.06) calc(1.3rem + 1px) calc(1.3rem + 2px)
+    ),
+    radial-gradient(
+      120% 80% at 75% 50%,
+      rgba(255, 138, 115, calc(0.6 * var(--glow))),
+      rgba(150, 28, 19, calc(0.5 * var(--glow))) 60%,
+      transparent
+    ),
+    #1a0c0a;
+}
+.door-leaf-edge {
+  top: 0;
+  left: calc(100% - var(--T) / 2);
+  width: var(--T);
+  height: 100%;
+  transform: translateZ(calc(var(--T) / -2)) rotateY(90deg);
+  background: linear-gradient(90deg, #2a1c19, #140d0c);
+  box-shadow: inset 0 0 0.6rem rgba(255, 120, 95, calc(0.65 * var(--glow)));
+}
+.door-leaf-top {
+  top: calc(var(--T) / -2);
+  left: 0;
+  width: 100%;
+  height: var(--T);
+  transform: translateZ(calc(var(--T) / -2)) rotateX(90deg);
+  background: #212c29;
+}
+.door-plate {
+  position: absolute;
+  left: 50%;
+  top: 27%;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 0.2rem;
+  padding: 0.5rem 0.8rem 0.45rem;
+  border-radius: 0.2rem;
+  background: linear-gradient(#efe8dc, #bdb2a1);
+  box-shadow:
+    0 0.15rem 0.45rem rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  color: #2b1f1a;
+  font-family: var(--mark);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.24em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.door-plate small {
+  font-family: var(--sans);
+  font-size: 0.4rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #6a5a50;
+}
+.door-handle {
+  position: absolute;
+  right: 0.85rem;
+  top: 45%;
+  width: 0.36rem;
+  height: 4.6rem;
+  border-radius: 0.2rem;
+  background: linear-gradient(90deg, #5d564d, #efe8dc 45%, #857c70);
+  box-shadow: -0.25rem 0.1rem 0.4rem rgba(0, 0, 0, 0.6);
+  transition:
+    background 0.4s ease,
+    box-shadow 0.4s ease;
+}
+.door.is-ready .door-handle {
+  background: linear-gradient(90deg, #8f1f18, #ff8a73 45%, #b22a20);
+  box-shadow:
+    -0.25rem 0.1rem 0.4rem rgba(0, 0, 0, 0.6),
+    0 0 0.9rem rgba(226, 61, 50, 0.85);
+}
+
+/* Dust drifting in the light, only once the door stands properly open. */
+.door-motes {
+  --w: 0rem;
+  --h: 0rem;
+  --dust: clamp(0, (var(--open) - 0.3) * 1.6, 1);
+  transform-style: preserve-3d;
+}
+.door-motes i {
+  position: absolute;
+  left: -1.5px;
+  top: -1.5px;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: rgba(255, 201, 181, var(--dust));
+  box-shadow: 0 0 6px 1px rgba(255, 120, 95, calc(0.8 * var(--dust)));
+  translate: var(--x) var(--y) var(--z);
+  opacity: 0;
+  animation: door-mote var(--t) linear var(--d) infinite;
+}
+@keyframes door-mote {
+  0% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate3d(-0.8rem, -3.2rem, 2.2rem);
+    opacity: 0;
+  }
+}
+.door-caption {
+  margin: 0;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: clamp(1rem, 1.5vw, 1.2rem);
+  color: var(--muted);
   text-align: center;
 }
-.note input,
-.note textarea {
-  width: 100%;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--line);
-  border-radius: 0.4rem;
-  padding: 0.8rem 0.85rem;
-  outline: none;
-  font-size: 1rem;
+
+/* The light stays off until the door is on screen, then flickers on; sending flares it. */
+@media (prefers-reduced-motion: no-preference) {
+  .door.is-armed:not(.is-arrived) :is(.door-light, .door-rim, .door-spill, .door-halo) {
+    opacity: 0;
+  }
+  .door.is-armed:not(.is-arrived) .door-motes {
+    display: none;
+  }
+  .door.is-arrived :is(.door-light, .door-rim, .door-spill) {
+    animation: door-flicker 1.5s linear 0.25s backwards;
+  }
+  .door-halo {
+    transition: opacity 1.4s ease 0.6s;
+  }
+  .door.is-sent .door-halo {
+    animation: door-flare 1.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
 }
-.note input:focus,
-.note textarea:focus {
-  border-color: var(--accent);
+@keyframes door-flicker {
+  0%,
+  6% {
+    opacity: 0;
+  }
+  9% {
+    opacity: 0.9;
+  }
+  13% {
+    opacity: 0.15;
+  }
+  22% {
+    opacity: 1;
+  }
+  27% {
+    opacity: 0.3;
+  }
+  40%,
+  100% {
+    opacity: 1;
+  }
 }
+@keyframes door-flare {
+  30% {
+    scale: 1.3;
+    filter: blur(6px) brightness(1.7);
+  }
+}
+
+@media (min-width: 600px) {
+  .door {
+    --size: 0.82;
+  }
+  .door-scene {
+    height: 25.5rem;
+  }
+}
+@media (min-width: 900px) {
+  .contact-grid {
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 1fr);
+  }
+  .contact-card {
+    width: 100%;
+  }
+  .door {
+    --size: 0.88;
+  }
+  .door-scene {
+    height: 30rem;
+  }
+}
+@media (min-width: 1100px) {
+  .door {
+    --size: 1.08;
+  }
+  .door-scene {
+    height: 33rem;
+  }
+}
+
 .form-hint {
   text-transform: none;
   letter-spacing: 0.02em;
@@ -2301,22 +3078,32 @@ a:focus-visible > .arrow {
 .go:focus-visible,
 .c3d-btn:focus-visible,
 .wall-card:focus-visible,
-.studio-card:focus-visible {
+.studio-page:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
 }
-.wall-card:focus-visible {
+.wall-card:focus-visible,
+.studio-page:focus-visible {
   outline-offset: -4px;
 }
 
 .colophon {
-  padding: 2rem var(--pad) calc(7rem + env(safe-area-inset-bottom));
+  width: min(calc(100% - 2 * var(--pad)), 72rem);
+  margin: 0 auto;
+  padding: 1.6rem 0 calc(7rem + env(safe-area-inset-bottom));
+  border-top: 1px solid var(--line);
   display: flex;
   justify-content: center;
   gap: 1rem 2.5rem;
   flex-wrap: wrap;
   text-align: center;
-  width: 100%;
+}
+.colophon p {
+  margin: 0;
+  text-wrap: balance;
+}
+.colophon a {
+  white-space: nowrap;
 }
 
 #gate {
@@ -2638,6 +3425,9 @@ body:not(.sound-on) .hear-orb::after {
   .nav a.nav-site {
     display: none;
   }
+  .studio-place {
+    display: none;
+  }
 }
 
 @media (min-width: 700px) {
@@ -2660,9 +3450,20 @@ body:not(.sound-on) .hear-orb::after {
   .clients {
     grid-template-columns: repeat(3, 1fr);
   }
+  .studio-pages {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .studio-pages li + li {
+    border-top: 0;
+    border-left: 1px solid var(--line);
+  }
 }
 
 @media (min-width: 900px) {
+  .colophon {
+    justify-content: space-between;
+    text-align: left;
+  }
   .steps ol {
     grid-template-columns: repeat(4, 1fr);
     gap: 1rem;
@@ -2711,6 +3512,7 @@ body:not(.sound-on) .hear-orb::after {
     min-height: 100dvh;
   }
   .colophon {
+    width: min(calc(100% - 2 * max(var(--pad), 8rem)), 72rem);
     padding-bottom: 6rem;
   }
   .hear {
@@ -2752,10 +3554,20 @@ body:not(.sound-on) .hear-orb::after {
   }
   .ribbon-track,
   .nav-dot,
+  .studio-dot,
+  .contact-dot,
+  .studio-colon,
   .orbit-figure img,
   .orbit-core,
-  .ghost {
+  .ghost,
+  .door-light::after {
     animation: none;
+  }
+  .studio-rail {
+    background-size: 100% 100%;
+  }
+  .door-motes {
+    display: none;
   }
   .steps {
     --fill: 1;
@@ -2782,7 +3594,17 @@ body:not(.sound-on) .hear-orb::after {
   .c3d-btn,
   .nav a,
   .nav a::after,
-  .direct a {
+  .direct a,
+  .studio-panel::after,
+  .studio-rail,
+  .studio-page,
+  .studio-go,
+  .field-label,
+  .field input,
+  .field textarea,
+  .door,
+  .door-rig,
+  .door-handle {
     transition: none;
   }
 }

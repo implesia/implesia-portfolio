@@ -8,18 +8,18 @@ The site does not ship a video, a music file, or a third-party soundtrack. Weath
 
 | Piece           | Choice                                 | Version                                                |
 | --------------- | -------------------------------------- | ------------------------------------------------------ |
-| Framework       | Next.js (App Router, Turbopack in dev) | 16.3.7                                                 |
-| UI              | React                                  | 19.3.0                                                 |
-| Language        | TypeScript, `strict`                   | 5.9                                                    |
-| Animation       | GSAP + ScrollTrigger                   | 3.15.0                                                 |
-| Package manager | Bun                                    | lockfile: `bun.lock`                                   |
-| Styling         | Global CSS. No Tailwind, no CSS-in-JS  | —                                                      |
-| Fonts           | `next/font/google`                     | Outfit, Cormorant Garamond, Cinzel, UnifrakturMaguntia |
-| Storm picture   | Canvas 2D, `requestAnimationFrame`     | —                                                      |
-| Storm sound     | Web Audio API                          | —                                                      |
-| Spoken voice    | WAV clips, played through Web Audio    | generated with Kokoro `am_onyx`                        |
-| Images          | PNG and WebP in `public/`              | hero, services and Ask figures, six project stills     |
-| Hosting         | Cloudflare Workers static assets       | static export, Wrangler 4.144                          |
+| Framework       | Next.js App Router on [vinext](https://vinext.dev/) (Vite) | Next 16.3.7, vinext 1.0.0                     |
+| UI              | React                                                      | 19.3.0                                        |
+| Language        | TypeScript, `strict`                                       | 5.9                                           |
+| Animation       | GSAP + ScrollTrigger                                       | 3.15.0                                        |
+| Package manager | Bun                                                        | lockfile: `bun.lock`                          |
+| Styling         | Global CSS. No Tailwind, no CSS-in-JS                      | —                                             |
+| Fonts           | `next/font/google`                                         | Outfit, Cormorant Garamond, Cinzel, UnifrakturMaguntia |
+| Storm picture   | Canvas 2D, `requestAnimationFrame`                         | —                                             |
+| Storm sound     | Web Audio API                                              | —                                             |
+| Spoken voice    | WAV clips, played through Web Audio                        | generated with Kokoro `am_onyx`               |
+| Images          | PNG and WebP in `public/`                                  | hero, services and Ask figures, six project stills |
+| Hosting         | Cloudflare Workers                                         | vinext + Wrangler 4.144                       |
 
 Kokoro is not a runtime dependency. It was used once, offline, to render the files in `public/voice/`. The site only fetches and plays those files.
 
@@ -33,13 +33,13 @@ bun run dev
 Dev server: [http://localhost:3010](http://localhost:3010).
 
 ```bash
-bun run build      # static export to out/
-bun run start      # serves out/ in the Workers runtime at http://localhost:8787
+bun run build      # Vite production build; prerenders every route into dist/
+bun run start      # serves dist/ in the Workers runtime at http://localhost:8787
 ```
 
-`bun run preview` does both. `next start` is not used: it does not work with a static export. Deploying is covered in [Deploy on Cloudflare](#deploy-on-cloudflare).
+`bun run preview` does both. Deploying is covered in [Deploy on Cloudflare](#deploy-on-cloudflare).
 
-Open the site as `localhost`, not `127.0.0.1`. Next’s dev server blocks cross-origin client scripts otherwise, and the gate never leaves 0%. `next.config.ts` allows `127.0.0.1` as a dev origin, but `localhost` is the reliable URL.
+Open the site as `localhost`, not `127.0.0.1`. The Vite dev server is bound to port 3010.
 
 ## What the page does
 
@@ -55,8 +55,8 @@ Open the site as `localhost`, not `127.0.0.1`. Next’s dev server blocks cross-
    - **Work.** A curved 3D wall of six projects, three figures from implesia.com, and the named clients.
    - **Process.** Four steps on a rail that fills as you scroll.
    - **Ask.** “Ask the Architect.” Ten question cards sit on an arc around a seated figure holding a red orb. Pressing one speaks the answer and writes it under him.
-   - **Contact.**
-   - **Studio card.** A tilting card that links to implesia.com.
+   - **Contact.** The note on the left and, beside it, the studio’s door in 3D. The door stands ajar and opens further as the note is written.
+   - **Studio.** A panel that signs the page off: the Implesia wordmark, the time in Dhaka, and links to implesia.com and its services, portfolio, and contact pages.
 
    Chapter titles reveal with ScrollTrigger. `prefers-reduced-motion` skips those tweens.
 
@@ -68,7 +68,7 @@ There is no subtitle track. Each answer is written on the page while it is spoke
 app/
   layout.tsx          fonts, metadata, gated html
   page.tsx            renders Experience, plus the questions as FAQPage structured data
-  not-found.tsx       the 404 page (out/404.html)
+  not-found.tsx       the 404 page, served by the Worker for unknown URLs
   globals.css         the whole visual system
   icon.svg
 components/
@@ -80,26 +80,29 @@ components/
   hero-figure.tsx     hero image canvas
   depth-canvas.tsx    wireframe field behind the lower page
   faq-list.tsx        the Ask stage: dial, seated figure, ten question cards, answers
+  contact-door.tsx    the contact note and the 3D door beside it
   hear-button.tsx     side control, after enter
 lib/
   content.ts          copy, implesia.com links, work items, question text, voice paths
   carousel.ts         3D slider engine: orbit and wall, cruise, spring, drag, keys
-  pointer.ts          spotlight, magnetic buttons, hero drift, studio tilt
+  pointer.ts          spotlight, magnetic buttons, hero drift
   use-reduced-motion.ts  prefers-reduced-motion as a React hook
+  use-dhaka-time.ts   the time in Dhaka, for the Studio panel
   depth.ts            wireframe field
   storm.ts            cloud and lightning loop
   flash.ts            lightning → thunder
   audio.ts            drones, wind, heartbeat, thunder
   voice.ts            WAV playback, duck-friendly mix, live level for the orb
 public/
-  _headers            Cloudflare response headers, copied into out/
+  _headers            Cloudflare response headers, copied into dist/client/
   hero-figure.png
   services-figure.webp  the figure the service cards orbit
   faq-figure.webp     the seated figure in Ask
   work-*.png          one still per project
   voice/              faq-01 … faq-10, the ten answers
-next.config.ts        output: "export"
-wrangler.jsonc        Cloudflare Worker: assets from out/, no script
+vite.config.ts        vinext plugin: prerender every route, static-assets cache
+next.config.ts        App Router config (no static export)
+wrangler.jsonc        Cloudflare Worker: vinext fetch handler + assets from dist/client/
 ```
 
 `@/*` maps to the project root (`tsconfig.json`).
@@ -108,7 +111,7 @@ wrangler.jsonc        Cloudflare Worker: assets from out/, no script
 
 ### Next.js 16 and React 19
 
-App Router. `app/page.tsx` is a server component that renders one client island, `Experience`. Almost everything after that is `"use client"` because GSAP, canvas, and Web Audio need the browser.
+App Router, built by Vite through [vinext](https://vinext.dev/). `app/page.tsx` is a server component that renders one client island, `Experience`. Almost everything after that is `"use client"` because GSAP, canvas, and Web Audio need the browser. `vinext check` reports the app 93% compatible; the only gap is that vinext does not yet wrap the App Router in `reactStrictMode`.
 
 `reactStrictMode` is on. `agentRules` is off so Next does not regenerate agent instruction files.
 
@@ -187,9 +190,29 @@ Accessibility follows the WAI-ARIA carousel pattern. Each slider is a `region` w
 - A soft red spotlight follows the pointer over cards marked `.spot`, through `--mx` and `--my`.
 - Buttons with `data-magnetic` lean toward the pointer (`gsap.quickTo`).
 - The hero image and copy drift slightly against the pointer while the hero is on screen.
-- The studio card tilts in 3D, with a glare that follows the pointer.
+- On the Studio panel, the spotlight also brings up a brighter copy of the panel’s grid under the pointer.
 
 With reduced motion only the spotlight stays.
+
+### The door
+
+`components/contact-door.tsx`. The note sits on the left, in the same card language as the Studio panel, with a bar that says where it goes. Name and Email share a row once the card is at least 28rem wide (a container query). On the right stands the studio’s door, built from flat CSS faces in one 3D scene: a frame on a grid floor, a slatted leaf with a nameplate and a bar handle, and a warm light behind it. Below 900px the door follows the note.
+
+- **It opens with the note.** The wrapper’s `--angle` is 7° untouched and 12° once the form has focus. A name, a valid address, and about 80 characters of message take it to 40°, and the handle turns red once the form is valid. Sending swings it to 98° and flares the light. Typing again brings it back.
+- **Why stop at 40°.** The camera looks from the front right, so the leaf turns edge-on near 58°. A full note stops short of that. A sent one swings past it to show the lit inner face.
+- **Light.** `--angle` is a registered `@property`, so it transitions, and everything that glows reads it: `--glow` and `--open` come from `sin(--angle)`, and the light on the floor stops at the leaf’s shadow through `cos(--angle)`.
+- **Life.** The light flickers on when the door comes on screen, and dust drifts in it once the door is well open. With a mouse, the door turns a few degrees toward the pointer. The wireframe field steps aside while this section holds the middle of the screen.
+- **3D rules.** Opacity, filter, overflow, and clip-path flatten a 3D scene, so they sit only on single faces, never on the rig or the leaf. Only the faces the camera can see are built. The scene is decorative and hidden from screen readers.
+- **Reduced motion.** The door jumps to each angle, its light is on from the start, and nothing drifts or turns.
+
+### Studio panel
+
+The page ends on one panel, in the same card language as the rest: a hairline border, 1rem corners, and the `.spot` spotlight. It is as wide as the tally and the process (72rem), and the colophon under it lines up with its edges.
+
+- **Status bar.** The time in Dhaka comes from `useDhakaTime()`. It checks the clock every second but re-renders only when the minute changes, and only inside the small `DhakaTime` component. The static HTML shows `--:--` until the page runs.
+- **Wordmark.** It is the section’s `h2`. Its letters are `.line` elements, so they rise one after another with the scroll reveal. Its size is `15cqi`, a container unit of the panel, clamped between 2.5rem and 8.8rem. It fills about 80% of the width at any screen size and never wraps.
+- **Rail.** The red line under the wordmark draws out while the section is live, like the process rail.
+- **Pages.** Three cells link to implesia.com’s services, portfolio, and contact pages. Their copy is `STUDIO_PAGES` in `lib/content.ts`.
 
 ### CSS
 
@@ -201,13 +224,13 @@ Custom properties carry the four font families. The fixed side button sits mid-r
 
 ### Fonts
 
-Loaded with `next/font/google`, so the files are self-hosted at build time and exposed as CSS variables:
+Loaded with `next/font/google` and exposed as CSS variables. vinext self-hosts them when the options are static; otherwise it falls back to the Google Fonts CDN:
 
 | Variable         | Face                               | Use                               |
 | ---------------- | ---------------------------------- | --------------------------------- |
 | `--font-sans`    | Outfit 300–500                     | UI, body                          |
 | `--font-serif`   | Cormorant Garamond 500/600, italic | letter, captions, long lines      |
-| `--font-mark`    | Cinzel 500/700                     | small labels, the ring percentage |
+| `--font-mark`    | Cinzel 500/700                     | wordmarks, numerals, small labels |
 | `--font-display` | UnifrakturMaguntia 400             | the blackletter headline          |
 
 ### Canvas storm
@@ -280,47 +303,49 @@ Company facts come from implesia.com: 12+ live projects, 8+ industry verticals, 
 
 ## Deploy on Cloudflare
 
-The site is a static export. `next build` writes plain files to `out/` (`output: "export"` in `next.config.ts`), and Cloudflare serves them as [Workers static assets](https://developers.cloudflare.com/workers/static-assets/). `wrangler.jsonc` has no `main`, so there is no Worker script: every request is answered from assets and none is billed as a Worker invocation.
+Cloudflare’s path for Next.js on Workers is [vinext](https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/). This site does not need server actions or a database, so every route is prerendered at build time (`prerender: true` in `vite.config.ts`) and shipped as [Workers static assets](https://developers.cloudflare.com/workers/static-assets/). `staticAssetsAdapter()` serves those files; a new deploy replaces the cache. The Worker still runs for the 404 page and for cache-path reads.
 
-- `wrangler.jsonc` — Worker name `implesia-portfolio`, files from `./out`, and unknown URLs get `404.html` with a real 404 status. The workers.dev address and per-version preview URLs are on.
-- `public/_headers` — copied into `out/` by the build and applied by Cloudflare:
+- `wrangler.jsonc` — Worker name `implesia-portfolio`, vinext’s fetch handler, assets from `dist/client/`. The workers.dev address and per-version preview URLs are on.
+- `public/_headers` — copied into `dist/client/` by the build and applied by Cloudflare:
   - security headers on every response;
   - a year of `immutable` caching for `/_next/static/*`, whose file names are hashed;
-  - one day, then background revalidation, for images, voices, and audio;
-  - HTML revalidates on every visit, so a deploy shows at once.
+  - one day, then background revalidation, for images, voices, and audio.
 - `app/not-found.tsx` — the 404 page.
+
+`vinext check` is 93% compatible (one partial: App Router `reactStrictMode` wrapping). There is no `output: "export"` any more; vinext’s prerender covers that job.
 
 The site is live at <https://implesia-portfolio.implesiaitltd.workers.dev>, on the Implesia Cloudflare account. To deploy from a machine:
 
 ```bash
 bunx wrangler login   # once per machine; opens the browser to sign in to Cloudflare
-bun run deploy        # next build, then wrangler deploy
+bun run deploy        # vinext-cloudflare deploy: build, prerender, upload
 ```
 
-- `bun run deploy:dry` checks the build and the config without uploading.
-- `bun run preview` serves the production build locally in the Workers runtime, at <http://localhost:8787>.
+- `bun run deploy:dry` checks the vinext + Wrangler setup without building or uploading.
+- `bun run preview` builds, then serves the Worker locally at <http://localhost:8787>.
 - `bunx wrangler rollback` puts an earlier version back. `bunx wrangler versions list` shows the version IDs.
 
 Deploy on every push instead, with Workers Builds. The Worker already exists, so connect it rather than importing the repository as a new one:
 
 1. Cloudflare dashboard → Workers & Pages → `implesia-portfolio` → Settings → Build → Connect → `implesia/implesia-portfolio`, branch `main`.
-2. Build command: `bun run build`. Deploy command: `npx wrangler deploy`, the default.
-3. The Worker name must match `name` in `wrangler.jsonc`, or the build fails.
+2. Build command: `bun run build`. Deploy command: `npx vinext-cloudflare deploy --skip-build`. `vite build` defers prerender to this step, so do not use a bare `wrangler deploy` here. Workers Builds ignores a `build` field on `wrangler.jsonc`, so both commands have to be set here.
+3. Under Build variables and secrets, add `BUN_VERSION` = `1.3.14`. The build image defaults to Bun 1.2.15, but `bun.lock` is written by Bun 1.3 (it has a `configVersion` field). Keep the variable in step with `bun --version` on your machine.
+4. The Worker name must match `name` in `wrangler.jsonc`, or the build fails.
 
 Custom domain: open the Worker → Settings → Domains & Routes → Add → Custom domain. The domain’s DNS must be on Cloudflare. Alternatively, add `"routes": [{ "pattern": "your.domain", "custom_domain": true }]` to `wrangler.jsonc`. If the site should then answer only on that domain, set `workers_dev` to `false`.
 
 Limits that matter here:
 
 - 25 MiB per file. The largest, `story.wav`, is 6.9 MB.
-- 20,000 files per version on the free plan. The export is under 100.
+- 20,000 files per version on the free plan. The build stays well under that.
 
 Browsers keep images and audio for a day. After replacing a voice file, bump its `?v=` key in `lib/content.ts`. Give a replaced image a new file name if the change must show at once.
 
-A static export cannot run code on the server. Server actions, route handlers that read the request, middleware, and ISR all fail the build. `next/image` would also need `images: { unoptimized: true }`; the site uses plain `<img>` today. If the site ever needs any of these, move to a Next.js adapter for Workers. Cloudflare currently recommends vinext, which is in beta; OpenNext is the established alternative.
+The page is prerendered, so a visit does not render React inside the Worker. If the site later needs server actions, route handlers, or Cloudflare bindings, they can be added without changing the host: import `env` from `cloudflare:workers` in server code. OpenNext remains the older adapter if a Next.js feature vinext does not yet cover is required.
 
 ## Browser notes
 
 - Sound starts only after a click (`Turn on the storm`, or the side button).
 - Two `AudioContext`s: one for the storm, one for speech.
-- `prefers-reduced-motion: reduce` skips GSAP reveals and the Ask stage’s entrance. Both sliders start paused, the orbit appears without its swirl, the services figure and the cards hold still, the ribbons stand still, the process shows fully lit, and pointer drift and tilt are off. Sound and the canvas still run.
+- `prefers-reduced-motion: reduce` skips GSAP reveals and the Ask stage’s entrance. Both sliders start paused, the orbit appears without its swirl, the services figure and the cards hold still, the ribbons stand still, the process shows fully lit, the door opens without swinging and its light is on from the start, the Studio rail is drawn and its dot and clock stay still, and magnetic buttons and pointer drift are off. Sound and the canvas still run.
 - The sliders and the hero image stop drawing while they are off screen or the tab is in the background.

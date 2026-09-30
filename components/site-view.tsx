@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, Fragment, useState, type ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import {
   CLIENTS,
   CONTACT,
@@ -8,11 +8,14 @@ import {
   IMPLESIA,
   PRACTICE,
   STEPS,
+  STUDIO_PAGES,
   TALLY,
   WORK,
   type WorkItem,
 } from "@/lib/content";
+import { useDhakaTime } from "@/lib/use-dhaka-time";
 import { Carousel3D } from "@/components/carousel-3d";
+import { ContactDoor } from "@/components/contact-door";
 import { DepthCanvas } from "@/components/depth-canvas";
 import { FaqList } from "@/components/faq-list";
 import { HeroFigure } from "@/components/hero-figure";
@@ -27,20 +30,6 @@ type Service = (typeof PRACTICE)[number];
 const outside = { target: "_blank", rel: "noopener noreferrer" } as const;
 
 export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
-  const [hint, setHint] = useState("Opens your email app. Nothing is stored on this page.");
-
-  function send(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = String(data.get("name") || "").trim();
-    const email = String(data.get("email") || "").trim();
-    const message = String(data.get("message") || "").trim();
-    const body = `${message}\n\n— ${name}\n${email}`;
-    const href = `mailto:${CONTACT.email}?subject=${encodeURIComponent("A note from the portfolio")}&body=${encodeURIComponent(body)}`;
-    setHint("Opening your email app…");
-    window.location.href = href;
-  }
-
   return (
     <>
       <header className="nav">
@@ -76,9 +65,17 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
             <h1 className="line" tabIndex={-1}>
               Built to <em>hold.</em>
             </h1>
-            <p className="lede line">Web platforms, mobile apps, cloud, and the systems a business runs on.</p>
+            <p className="lede line">
+              Web platforms, mobile apps, cloud, and the systems a business runs
+              on.
+            </p>
             <div className="hero-cta line">
-              <a className="btn btn-solid" data-magnetic href={IMPLESIA.home} {...outside}>
+              <a
+                className="btn btn-solid"
+                data-magnetic
+                href={IMPLESIA.home}
+                {...outside}
+              >
                 Visit implesia.com
                 <Arrow />
               </a>
@@ -118,12 +115,18 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
             </div>
           </section>
 
-          <section className="chapter stage" id="field" aria-label="A three-dimensional field drawn in the browser">
+          <section
+            className="chapter stage"
+            id="field"
+            aria-label="A three-dimensional field drawn in the browser"
+          >
             <p className="index line">— The field</p>
             <h2 className="line">
               The room has <em>depth.</em>
             </h2>
-            <p className="chapter-note line">A structure drawn in the browser. It turns as you move.</p>
+            <p className="chapter-note line">
+              A structure drawn in the browser. It turns as you move.
+            </p>
           </section>
 
           <section className="chapter" id="practice">
@@ -132,7 +135,8 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
               What an IT company <em>ships.</em>
             </h2>
             <p className="chapter-note line">
-              The same desk also covers digital marketing, content, and video when a launch needs to be seen.
+              The same desk also covers digital marketing, content, and video
+              when a launch needs to be seen.
             </p>
             <div className="line">
               <Carousel3D
@@ -163,7 +167,8 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
               Already in the <em>world.</em>
             </h2>
             <p className="chapter-note line">
-              Published work from Implesia IT. Each one is a service we still deliver.
+              Published work from Implesia IT. Each one is a service we still
+              deliver.
             </p>
             <div className="line">
               <Carousel3D
@@ -184,7 +189,11 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
                   <li className="spot" key={item.label}>
                     <p className="tally-value">
                       <span aria-hidden="true">
-                        {item.count ? <span data-count={item.value}>{item.value}</span> : item.value}
+                        {item.count ? (
+                          <span data-count={item.value}>{item.value}</span>
+                        ) : (
+                          item.value
+                        )}
                         {item.suffix}
                       </span>
                       <span className="sr-only">
@@ -229,7 +238,8 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
               Nothing ships in the <em>dark.</em>
             </h2>
             <p className="chapter-note line">
-              Discovery, design, build, scale. The method Implesia IT runs on every engagement.
+              Discovery, design, build, scale. The method Implesia IT runs on
+              every engagement.
             </p>
             <div className="steps">
               <span className="steps-rail" aria-hidden="true">
@@ -269,25 +279,10 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
             <h2 className="line">
               Tell us what must <em>hold.</em>
             </h2>
-            <p className="lede tight line">A free discovery call is enough to start.</p>
-            <form className="note line" onSubmit={send}>
-              <label>
-                Name
-                <input name="name" type="text" required autoComplete="name" />
-              </label>
-              <label>
-                Email
-                <input name="email" type="email" required autoComplete="email" />
-              </label>
-              <label>
-                What you need
-                <textarea name="message" rows={4} required />
-              </label>
-              <button type="submit" className="btn btn-solid" data-magnetic>
-                Send a note
-              </button>
-              <p className="form-hint">{hint}</p>
-            </form>
+            <p className="lede tight line">
+              A free discovery call is enough to start.
+            </p>
+            <ContactDoor />
             <p className="direct line">
               <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>
               <a href={`tel:${CONTACT.phone}`}>{CONTACT.phoneLabel}</a>
@@ -304,19 +299,65 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
             <p className="place line">{`${CONTACT.place}, Bangladesh · NDA available on request`}</p>
           </section>
 
-          <section className="chapter studio" id="studio" aria-label="Implesia IT">
+          <section
+            className="chapter studio"
+            id="studio"
+            aria-labelledby="studio-title"
+          >
             <p className="index line">— The studio</p>
-            <div className="studio-wrap line">
-              <a className="studio-card" href={IMPLESIA.home} aria-label="Visit implesia.com, the Implesia IT website" {...outside}>
-                <span className="studio-glare" aria-hidden="true" />
-                <span className="studio-kicker">Implesia IT Ltd · {CONTACT.place}</span>
-                <span className="studio-word">Implesia</span>
-                <span className="studio-line">{IMPLESIA.tagline}</span>
-                <span className="studio-url">
-                  implesia.com
-                  <Arrow />
+            <div className="studio-panel spot line">
+              <span className="studio-grid" aria-hidden="true" />
+              <p className="studio-bar">
+                <span className="studio-name">
+                  <span className="studio-dot" aria-hidden="true" />
+                  Implesia IT Ltd
                 </span>
-              </a>
+                <span>
+                  <span className="studio-place">{CONTACT.place} · </span>
+                  <DhakaTime /> GMT+6
+                </span>
+              </p>
+              <div className="studio-center">
+                <h2 className="studio-word" id="studio-title">
+                  <span className="sr-only">Implesia IT</span>
+                  <span aria-hidden="true">
+                    {[..."Implesia"].map((letter, index) => (
+                      <span className="line" key={index}>
+                        {letter}
+                      </span>
+                    ))}
+                  </span>
+                </h2>
+                <span className="studio-rail" aria-hidden="true" />
+                <p className="studio-line line">{IMPLESIA.tagline}</p>
+                <div className="studio-cta line">
+                  <a
+                    className="btn btn-solid"
+                    data-magnetic
+                    href={IMPLESIA.home}
+                    {...outside}
+                  >
+                    Visit implesia.com
+                    <Arrow />
+                  </a>
+                </div>
+              </div>
+              <ul className="studio-pages">
+                {STUDIO_PAGES.map((page, index) => (
+                  <li key={page.title}>
+                    <a className="studio-page" href={page.href} {...outside}>
+                      <span className="studio-page-no" aria-hidden="true">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span className="studio-page-title">{page.title}</span>
+                      <span className="studio-page-note">{page.note}</span>
+                      <span className="studio-go" aria-hidden="true">
+                        <Arrow />
+                      </span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
             </div>
           </section>
 
@@ -328,7 +369,9 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
               </a>{" "}
               · {CONTACT.place}
             </p>
-            <p>Next.js · GSAP · Storm, lightning, and 3D drawn in the browser.</p>
+            <p>
+              Next.js · GSAP · Storm, lightning, and 3D drawn in the browser.
+            </p>
           </footer>
         </div>
       </main>
@@ -338,9 +381,26 @@ export function SiteView({ onSpeak, onSilence }: SiteViewProps) {
 
 function Arrow() {
   return (
-    <svg className="arrow" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <svg
+      className="arrow"
+      viewBox="0 0 16 16"
+      aria-hidden="true"
+      focusable="false"
+    >
       <path d="M4.5 11.5 11.5 4.5M5.5 4.5h6v6" />
     </svg>
+  );
+}
+
+function DhakaTime() {
+  const time = useDhakaTime();
+  const [hours, minutes] = time ? time.split(":") : ["--", "--"];
+  return (
+    <time className="studio-time" dateTime={time || undefined}>
+      {hours}
+      <span className="studio-colon">:</span>
+      {minutes}
+    </time>
   );
 }
 
@@ -359,20 +419,30 @@ function Ink({ text }: { text: string }) {
 }
 
 function Ribbons() {
-  const brand = ["Implesia IT", IMPLESIA.tagline.replace(/\.$/, ""), "implesia.com"];
+  const brand = [
+    "Implesia IT",
+    IMPLESIA.tagline.replace(/\.$/, ""),
+    "implesia.com",
+  ];
   return (
     <div className="ribbons" aria-hidden="true">
       <div className="ribbon-set">
         <div className="ribbon ribbon-b">
           <div className="ribbon-track">
             {[0, 1].map((copy) =>
-              [0, 1, 2].map((round) => brand.map((text) => <span key={`${copy}-${round}-${text}`}>{text}</span>)),
+              [0, 1, 2].map((round) =>
+                brand.map((text) => (
+                  <span key={`${copy}-${round}-${text}`}>{text}</span>
+                )),
+              ),
             )}
           </div>
         </div>
         <div className="ribbon ribbon-a">
           <div className="ribbon-track">
-            {[0, 1].map((copy) => HABITS.map((text) => <span key={`${copy}-${text}`}>{text}</span>))}
+            {[0, 1].map((copy) =>
+              HABITS.map((text) => <span key={`${copy}-${text}`}>{text}</span>),
+            )}
           </div>
         </div>
       </div>
@@ -383,7 +453,15 @@ function Ribbons() {
 function OrbitFigure() {
   return (
     <div className="orbit-figure">
-      <img src="/services-figure.webp" alt="" width={736} height={1050} loading="lazy" decoding="async" draggable={false} />
+      <img
+        src="/services-figure.webp"
+        alt=""
+        width={736}
+        height={1050}
+        loading="lazy"
+        decoding="async"
+        draggable={false}
+      />
       <span className="orbit-core" />
     </div>
   );
@@ -394,7 +472,13 @@ function OrbitGhosts() {
     <>
       {WORK.map((item) => (
         <span className="ghost" key={item.title}>
-          <img src={item.image} alt="" loading="lazy" decoding="async" draggable={false} />
+          <img
+            src={item.image}
+            alt=""
+            loading="lazy"
+            decoding="async"
+            draggable={false}
+          />
         </span>
       ))}
     </>

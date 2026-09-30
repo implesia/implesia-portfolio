@@ -2,12 +2,16 @@
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "implesia-portfolio",
   "compatibility_date": "2026-09-30",
-  // No "main": the site is a static export, so every request is answered from assets and
-  // never runs (or bills) a Worker script. `next build` writes the files to ./out.
+  "compatibility_flags": ["nodejs_compat"],
+  // vinext's fetch handler. `vite build` prerenders every route into static
+  // assets; the Worker only answers cache reads and unknown URLs (the 404 page).
+  "main": "vinext/server/fetch-handler",
   "assets": {
-    "directory": "./out",
-    "not_found_handling": "404-page",
-    "html_handling": "auto-trailing-slash",
+    "directory": "dist/client",
+    "binding": "ASSETS",
+    "not_found_handling": "none",
+    // The pre-rendered pages live here; only the Worker may read them.
+    "run_worker_first": ["/_vinext/static-cache/*"],
   },
   "workers_dev": true,
   "preview_urls": true,

@@ -226,10 +226,13 @@ export function startDepth(canvas: HTMLCanvasElement, reduced: boolean) {
 
   function shown() {
     const letter = document.getElementById("letter");
-    // The Ask stage draws its own ring; the wireframe steps aside while it holds the middle of the screen.
-    const ask = document.getElementById("ask")?.getBoundingClientRect();
+    // The Ask stage and the door draw their own 3D; the wireframe steps aside while either holds the
+    // middle of the screen.
     const middle = window.innerHeight / 2;
-    const quiet = !!ask && ask.top < middle && ask.bottom > middle;
+    const quiet = ["ask", "contact"].some((id) => {
+      const box = document.getElementById(id)?.getBoundingClientRect();
+      return !!box && box.top < middle && box.bottom > middle;
+    });
     const show = !quiet && !!letter && letter.getBoundingClientRect().top < window.innerHeight * 0.9;
     document.documentElement.classList.toggle("depth-on", show);
     return show;

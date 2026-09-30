@@ -7,6 +7,25 @@ export const IMPLESIA = {
   tagline: "Building digital products that help businesses stay ahead.",
 } as const;
 
+/** The studio pages listed along the bottom of the Studio panel. */
+export const STUDIO_PAGES = [
+  {
+    title: "Services",
+    note: "Web, mobile, cloud, and AI.",
+    href: IMPLESIA.services,
+  },
+  {
+    title: "Portfolio",
+    note: "12+ projects, live in production.",
+    href: IMPLESIA.portfolio,
+  },
+  {
+    title: "Contact",
+    note: "A free discovery call to start.",
+    href: IMPLESIA.contact,
+  },
+] as const;
+
 export const CONTACT = {
   email: "implesiaitltd@gmail.com",
   phone: "+8801516527932",
